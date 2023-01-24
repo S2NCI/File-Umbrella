@@ -1,6 +1,6 @@
 # TeamProject2023
-===TEAM MEMBERS===
+=TEAM MEMBERS=
+- Adam Malone
 - 
-- 
-- Kyle
+- Kyle White
 - 
