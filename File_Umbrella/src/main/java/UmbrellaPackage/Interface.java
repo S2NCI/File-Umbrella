@@ -16,7 +16,7 @@ import java.util.ArrayList;
  */
 /**
  *
- * @author spart
+ * I don't fully remember how to make wholly new jframes if I'll be honest - Kyle
  */
 public class Interface extends javax.swing.JFrame {
 
@@ -28,13 +28,7 @@ public class Interface extends javax.swing.JFrame {
         
         //fill the arraylists with some values
         //recip-desc-url 
-        /* retaining commented incase of file error
-        callableAdd("Wayne", "A pair of wellies", "boots.ie");
-        callableAdd("Lucas", "Assorted Legos", "https://www.lego.com/en-ie/product/lego-medium-creative-brick-box-10696?gclid=Cj0KCQiAsoycBhC6ARIsAPPbeLt5ISFVPtQM4Kqaxem2sa8fbDWAltIlG0CdY7L0j8AjwirHj8_HEwgaAmCGEALw_wcB&ef_id=Cj0KCQiAsoycBhC6ARIsAPPbeLt5ISFVPtQM4Kqaxem2sa8fbDWAltIlG0CdY7L0j8AjwirHj8_HEwgaAmCGEALw_wcB:G:s&s_kwcid=AL!933!3!627500590052!!!g!340007787760!!18564623980!145269219347&cmp=KAC-INI-GOOGEU-");
-        callableAdd("Hannah", "Hobby tools", "https://help.cricut.com/hc/article_attachments/360059434653/QuickSwap_tools.png");
-        callableAdd("Sam", "Clothing", "https://www.primark.com/en-ie");
-        callableAdd("Kathleen", "A book", "https://www.easons.com/Forever-Home-graham-norton-9781529391404-TPB-en-us.aspx");
-        */
+        
     }
 
     /**
