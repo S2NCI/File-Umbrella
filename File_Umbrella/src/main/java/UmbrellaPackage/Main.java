@@ -3,11 +3,15 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package UmbrellaPackage;
+import java.awt.AWTException;
 
 /**
  *
- * @author spart
+ * @authors Team 19
  */
 public class Main {
-    
+    public static void main(String args[]) throws AWTException { 
+            Notification myNotification = new Notification();
+            myNotification.displayTray();
+    }
 }
