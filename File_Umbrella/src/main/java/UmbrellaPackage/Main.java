@@ -11,7 +11,9 @@ import java.awt.AWTException;
  */
 public class Main {
     public static void main(String args[]) throws AWTException { 
-            Notification myNotification = new Notification();
-            myNotification.displayTray();
+            TrayInterface TI = new TrayInterface();
+            TI.addIcon();
+            TI.displayNotification("folder");
+            
     }
 }
