@@ -13,9 +13,9 @@ import java.io.File;
 import javax.imageio.ImageIO;
 
 /**
- *
  * @authors Team 19
  */
+
 public class TrayInterface {
     static Image iconImage;
     static TrayIcon trayIcon;
@@ -62,15 +62,22 @@ public class TrayInterface {
     }
     
     protected static PopupMenu createPopupMenu() {
-        final PopupMenu popup = new PopupMenu("File Umbrella");
+        final PopupMenu popup = new PopupMenu();
+        MenuItem header = new MenuItem("File Umbrella");
         MenuItem creditItem = new MenuItem("Acknowlegments");
-        MenuItem exitItem = new MenuItem("Close File Umbrella");
+        MenuItem exitItem = new MenuItem("Exit");
         // Add components to pop-up menu
+        popup.add(header);
         popup.addSeparator();
         popup.add(creditItem);
         popup.add(exitItem);
         
         //add action listeners for clicking the popup items
+        header.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                // open jframe
+            }
+        });
         creditItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // open jframe but team members and sources panel here
