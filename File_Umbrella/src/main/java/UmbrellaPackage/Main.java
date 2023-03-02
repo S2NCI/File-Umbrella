@@ -4,6 +4,7 @@
  */
 package UmbrellaPackage;
 import java.awt.AWTException;
+import java.awt.SystemTray;
 
 /**
  *
@@ -11,9 +12,16 @@ import java.awt.AWTException;
  */
 public class Main {
     public static void main(String args[]) throws AWTException { 
+        if (SystemTray.isSupported()) {
             TrayInterface TI = new TrayInterface();
             TI.addIcon();
-            TI.displayNotification("folder");
+        } else {
+            System.err.println("System tray not supported!");
+        }
+            
+            // when file data is recieved
+            String folder = "Folder";
+            //TI.displayNotification(folder);
             
     }
 }
