@@ -17,8 +17,8 @@ import javax.imageio.ImageIO;
  */
 
 public class TrayInterface {
-    static Image iconImage;
-    static TrayIcon trayIcon;
+    private static Image iconImage;
+    private static TrayIcon trayIcon;
     
     protected void addIcon() throws AWTException {
         //method to add the program icon to the taskbar

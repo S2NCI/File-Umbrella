@@ -5,13 +5,14 @@
 package UmbrellaPackage;
 import java.awt.AWTException;
 import java.awt.SystemTray;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
-import javax.swing.JOptionPane;
 
 /**
  * @authors Team 19
@@ -21,7 +22,7 @@ public class Main {
     private ArrayList<Folder> folders;
     private static TrayInterface TI;
     
-    public void main(String args[]) throws AWTException { 
+    public static void main(String args[]) throws AWTException { 
         //create system tray icon and 
         if (SystemTray.isSupported()) {
             TI = new TrayInterface();
@@ -30,9 +31,10 @@ public class Main {
             System.err.println("System tray not supported!");
         }
             
-        // when file data is recieved
-        String folder = "Folder";
-        //TI.displayNotification(folder);
+        File f = new File("C:");//temporary
+        Folder folder = new Folder(f, 10, "ay", false, false); //temporary
+        
+        TI.displayNotification(folder.getFolderName());
             
         //read local save data about folders
        // loadData();
