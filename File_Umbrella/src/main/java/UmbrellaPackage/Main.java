@@ -3,6 +3,12 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package UmbrellaPackage;
+
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+
 import java.awt.AWTException;
 import java.awt.SystemTray;
 import java.io.File;
@@ -14,54 +20,56 @@ import java.io.ObjectOutputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
+import static javafx.application.Application.launch;
+
 /**
  * @authors Team 19
  */
 
-public class Main {
+public class Main extends Application {
     private ArrayList<Folder> folders;
     private static TrayInterface TI;
-    
-    public static void main(String args[]) throws AWTException { 
-        //create system tray icon and 
-        if (SystemTray.isSupported()) {
-            TI = new TrayInterface();
-            TI.addIcon();
-        } else {
-            System.err.println("System tray not supported!");
+
+    public void start(Stage stage) throws AWTException, IOException {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/login-view.fxml"));
+            Scene scene = new Scene(fxmlLoader.load(), 600, 400);
+            stage.setTitle("File Umbrella");
+            stage.setScene(scene);
+            stage.setResizable(false);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-            
-        File f = new File("C:");//temporary
-        Folder folder = new Folder(f, 10, "ay", false, false); //temporary
-        
-        TI.displayNotification(folder.getFolderName());
-            
-        //read local save data about folders
-       // loadData();
-            
     }
-    
+
+    public static void main(String[] args) {
+        launch();
+    }
+
+    /*
     //load saved folder data
     private void loadData() {
         try {
             FileInputStream fis = new FileInputStream("folders.dat");
-            ObjectInputStream ois = new ObjectInputStream(fis);   
+            ObjectInputStream ois = new ObjectInputStream(fis);
             folders = (ArrayList<Folder>) ois.readObject();
-            ois.close(); 
-        } catch(Exception e) {
+            ois.close();
+        } catch (Exception e) {
             System.out.println(e);
         }
     }
-    
+
     //save folder data to file
     private void saveData() {
         try {
             FileOutputStream fos = new FileOutputStream("folders.dat");
-            ObjectOutputStream oos = new ObjectOutputStream(fos);   
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(folders);
-            oos.close(); 
+            oos.close();
         } catch (IOException e) {
             System.out.println(e);
-        } 
+        }
     }
+     */
 }

@@ -55,7 +55,7 @@ public class Folder implements Serializable {
     
     private void createFolder() {
         //method to create a directory folder to read files from
-    
+
     }
     
     public void deleteFolder() {
