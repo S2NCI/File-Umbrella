@@ -11,7 +11,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.nio.file.Path;
 import java.util.ArrayList;
 
 /**
@@ -39,6 +38,36 @@ public class Main {
         //read local save data about folders
        // loadData();
             
+    }
+    
+    public void openEnvelope(Envelope envelope, String sourceIP) {
+        int destinationID = envelope.getId();
+        boolean request = envelope.isRequest();
+        
+        //find matching folder id
+        for(Folder f : folders) {
+            if(f.getID() != destinationID) continue;
+            
+            boolean memberExists = false;
+            for(String m : f.getMembers()) {
+                if(m.matches(sourceIP)) {
+                    memberExists = true;
+                    break;
+                }
+            }
+            //if no member was found add the source ip
+            if(!memberExists) f.addMember(sourceIP);
+            
+            
+            if(request) {
+                //if a file request pass to send method
+                f.sendFiles(envelope.getSentFiles(), sourceIP);
+                
+            } else {
+                //if not is an update list(send to request method)
+                f.requestFiles(envelope.getSentFiles(), sourceIP);
+            }
+        }
     }
     
     //load saved folder data

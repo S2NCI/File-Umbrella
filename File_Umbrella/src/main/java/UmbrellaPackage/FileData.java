@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 /**
- *
  * @authors Team 19
  */
 public class FileData implements Serializable {
