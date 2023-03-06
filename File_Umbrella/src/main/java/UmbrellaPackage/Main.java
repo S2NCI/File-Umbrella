@@ -42,9 +42,39 @@ public class Main extends Application {
             e.printStackTrace();
         }
     }
-
+    
     public static void main(String[] args) {
         launch();
+    }
+    
+    public void openEnvelope(Envelope envelope, String sourceIP) {
+        int destinationID = envelope.getId();
+        boolean request = envelope.isRequest();
+        
+        //find matching folder id
+        for(Folder f : folders) {
+            if(f.getID() != destinationID) continue;
+            
+            boolean memberExists = false;
+            for(String m : f.getMembers()) {
+                if(m.matches(sourceIP)) {
+                    memberExists = true;
+                    break;
+                }
+            }
+            //if no member was found add the source ip
+            if(!memberExists) f.addMember(sourceIP);
+            
+            
+            if(request) {
+                //if a file request pass to send method
+                f.sendFiles(envelope.getSentFiles(), sourceIP);
+                
+            } else {
+                //if not is an update list(send to request method)
+                f.requestFiles(envelope.getSentFiles(), sourceIP);
+            }
+        }
     }
 
     /*
@@ -72,4 +102,20 @@ public class Main extends Application {
         }
     }
      */
+    
+    /*
+    //create system tray icon and 
+        if (SystemTray.isSupported()) {
+            TI = new TrayInterface();
+            TI.addIcon();
+        } else {
+            System.err.println("System tray not supported!");
+     File f = new File("C:");//temporary
+        Folder folder = new Folder(f, 10, "ay", false, false); //temporary
+        
+        TI.displayNotification(folder.getFolderName());
+            
+        //read local save data about folders
+       // loadData();
+    */
 }
