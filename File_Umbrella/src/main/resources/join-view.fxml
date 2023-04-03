@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.AccountController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.CreateFolderController">
     <left>
         <AnchorPane prefHeight="400.0" prefWidth="166.0" style="-fx-background-color: #6ea5ff;" BorderPane.alignment="CENTER">
          <children>
@@ -19,23 +19,23 @@
     <right>
         <AnchorPane prefHeight="400.0" prefWidth="450.0" BorderPane.alignment="CENTER">
             <children>
-                <TextField fx:id="joinIDTF" layoutX="108.0" layoutY="135.0" prefHeight="26.0" prefWidth="206.0" promptText="Enter Username" style="-fx-text-fill: #6ea5ff;">
+                <TextField fx:id="joinIDTF" layoutX="108.0" layoutY="108.0" prefHeight="26.0" prefWidth="206.0" promptText="Enter Folder ID" style="-fx-text-fill: #6ea5ff;">
                     <font>
                         <Font name="MS Outlook" size="12.0" />
                     </font>
                 </TextField>
-                <Label fx:id="folderIDLBL" layoutX="109.0" layoutY="101.0" text="Folder ID" textFill="#6ea5ff">
+                <Label fx:id="folderIDLBL" layoutX="108.0" layoutY="75.0" text="Folder ID" textFill="#6ea5ff">
                     <font>
                         <Font name="MS Outlook" size="18.0" />
                     </font>
                 </Label>
-            <PasswordField fx:id="folderPassTF" layoutX="108.0" layoutY="211.0" prefHeight="26.0" prefWidth="205.0" promptText="Enter Password" style="-fx-text-fill: #6ea5ff;" />
-                <Label layoutX="111.0" layoutY="180.0" text="Password" textAlignment="CENTER" textFill="#6ea5ff">
+            <PasswordField fx:id="folderPassTF" layoutX="109.0" layoutY="187.0" prefHeight="26.0" prefWidth="205.0" promptText="Enter Password" style="-fx-text-fill: #6ea5ff;" />
+                <Label layoutX="107.0" layoutY="155.0" text="Password" textAlignment="CENTER" textFill="#6ea5ff">
                     <font>
                         <Font name="MS Outlook" size="18.0" />
                     </font>
                 </Label>
-                <Button fx:id="btnAccLogin" layoutX="163.0" layoutY="276.0" mnemonicParsing="false" onAction="#handleAccountAuth" prefHeight="27.0" prefWidth="125.0" style="-fx-background-color: #6ea5ff;" text="Join Folder" textFill="WHITE">
+                <Button fx:id="btnAccLogin" layoutX="163.0" layoutY="259.0" mnemonicParsing="false" onAction="#handleAccountAuth" prefHeight="27.0" prefWidth="125.0" style="-fx-background-color: #6ea5ff;" text="Join Folder" textFill="WHITE">
                     <font>
                         <Font name="MS Outlook" size="14.0" />
                     </font>
@@ -43,7 +43,7 @@
                         <Cursor fx:constant="HAND" />
                     </cursor>
                 </Button>
-                <Label fx:id="btnCreateFolder" layoutX="182.0" layoutY="337.0" onMouseClicked="#handleCreateFolder" text="Create Folder →" textFill="#6ea5ff">
+                <Label fx:id="btnCreateFolder" layoutX="182.0" layoutY="319.0" onMouseClicked="#handleCreateFolder" text="Create Folder →" textFill="#6ea5ff">
                     <font>
                         <Font name="MS Outlook" size="12.0" />
                     </font>
