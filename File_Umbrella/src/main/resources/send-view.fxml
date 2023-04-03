@@ -9,7 +9,7 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="514.0" prefWidth="1090.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teamproject.filetransferproject.FileTransferController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="514.0" prefWidth="1090.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.UIFileController">
    <children>
       <AnchorPane layoutX="98.0" layoutY="46.0" prefHeight="470.0" prefWidth="992.0" style="-fx-background-color: #ffffff;">
          <children>
@@ -35,7 +35,7 @@
                   <Cursor fx:constant="HAND" />
                </cursor>
             </FontAwesomeIconView>
-            <Button fx:id="dlImgTxt" layoutX="6.0" layoutY="70.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="93.0" style="-fx-background-color: transparent;" text="Downloads" textFill="WHITE">
+            <Button fx:id="downloadSceneBtn" layoutX="6.0" layoutY="70.0" mnemonicParsing="false" onAction="#handleDownloadScene" prefHeight="27.0" prefWidth="93.0" style="-fx-background-color: transparent;" text="Downloads" textFill="WHITE">
                <font>
                   <Font name="MS Outlook" size="14.0" />
                </font>

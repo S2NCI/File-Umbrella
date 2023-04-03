@@ -10,20 +10,13 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.awt.AWTException;
-import java.awt.SystemTray;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.nio.file.Path;
 import java.util.ArrayList;
 
 import static javafx.application.Application.launch;
 
 /**
- * @authors Team 19
+ * @author Team 19
  */
 
 public class Main extends Application {
@@ -32,7 +25,7 @@ public class Main extends Application {
 
     public void start(Stage stage) throws AWTException, IOException {
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/login-view.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/join-view.fxml"));
             Scene scene = new Scene(fxmlLoader.load(), 600, 400);
             stage.setTitle("File Umbrella");
             stage.setScene(scene);

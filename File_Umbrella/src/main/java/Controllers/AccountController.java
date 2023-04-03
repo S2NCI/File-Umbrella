@@ -9,6 +9,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.SubScene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
@@ -16,6 +17,8 @@ import java.io.IOException;
 import java.sql.*;
 
 public class AccountController {
+    @FXML
+    public Button btnAccLogin;
     @FXML
     TextField accountNameTF;
     @FXML
@@ -42,9 +45,9 @@ public class AccountController {
 
             if (accountExists) {
                 // open filetransfercontroller class
-                FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("download-view.fxml"));
-                Scene scene = new Scene(fxmlLoader.load(), 600, 400);
-                Stage stage = new Stage();
+                FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/download-view.fxml"));
+                Scene scene = new Scene(fxmlLoader.load(), 1090, 514);
+                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                 stage.setTitle("File Umbrella");
                 stage.setScene(scene);
                 stage.setResizable(false);
@@ -70,7 +73,7 @@ public class AccountController {
 
     @FXML
     private void handleNewAcc(ActionEvent event) throws IOException {
-        Parent root = FXMLLoader.load(getClass().getResource("createacc-view.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/createfolder-view.fxml"));
         Scene scene = new Scene(root);
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stage.setScene(scene);
@@ -79,7 +82,7 @@ public class AccountController {
 
     @FXML
     public void handleLoginScene(javafx.scene.input.MouseEvent mouseEvent) throws IOException {
-        Parent root = FXMLLoader.load(getClass().getResource("login-view.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/join-view.fxml"));
         Scene scene = new Scene(root);
         Stage stage = (Stage) ((Node) mouseEvent.getSource()).getScene().getWindow();
         stage.setScene(scene);
