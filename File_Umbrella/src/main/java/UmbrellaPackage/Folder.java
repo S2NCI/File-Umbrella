@@ -23,6 +23,14 @@ public class Folder implements Serializable {
     private boolean autoUpdate; //if true skip 
     private boolean autoShare;
 
+    public ArrayList<String> getMembers() {
+        return members;
+    }
+
+    public void addMember(String newMember) {
+        members.add(newMember);
+    }
+
     public boolean isAutoUpdate() {
         return autoUpdate;
     }
@@ -43,6 +51,10 @@ public class Folder implements Serializable {
         return directory.getName();
     }
 
+    public int getID() {
+        return id;
+    }
+
     public Folder(File directory, int id, String managementPassword, boolean autoUpdate, boolean autoShare) {
         this.directory = directory;
         this.id = id;
@@ -55,7 +67,12 @@ public class Folder implements Serializable {
     
     private void createFolder() {
         //method to create a directory folder to read files from
-
+    
+    }
+    
+    private void placeINI() {
+        //method to place a desktop.ini file into the local directory
+        
     }
     
     public void deleteFolder() {
@@ -65,39 +82,46 @@ public class Folder implements Serializable {
     
     public void checkIn() throws IOException {
         //method to refresh folder data in general
+        
+        //check for any folder changes while application was closed
         ArrayList<FileData> send = checkForChanges();
-        if(autoShare) { 
-            sendNotif(send); 
-        } else {
-            //request permission
-        }
+        if(autoShare || true) {//request permission, true is a UI placeholder
+            sendChanges(send); 
+        } 
         
     }
     
-    public void recieveNotif(ArrayList<FileData> recieve) {
-        if(autoUpdate) {
-            //request files that are new from the recieve notification
-            requestFiles(getNewFiles(recieve));
-        } else {
-            //request permission
+    public void requestFiles(ArrayList<FileData> recievedFiles, String sourceLocation) {
+        //method to request files from a specific network member
+        if(autoUpdate || true) {//request permission, true is a UI placeholder
+            //create envelope of files to be requested
+            Envelope e = new Envelope(id, true, compareFiles(recievedFiles));
+            
+            //TODO: move over socket
         }
     }
     
-    public void sendNotif(ArrayList<FileData> notify) {
+    public void sendChanges(ArrayList<FileData> changedFiles) {
         //method to send notice of file changes to network members
+        Envelope e = new Envelope(id, false, changedFiles);
+        
+        for(String IP : members) {
+            //TODO attempt to send this envelope to each member ip through socket
+            Distributor.sendEnvelope(e);
+        }
     }
     
-    public void requestFiles(ArrayList<FileData> request) {
-        //method to request files from a network member outlined in a recieved notification
-    
+    public void recieveFiles() {
+        //method to save recieved files to the directory
+        
     }
     
-    public void sendFiles(ArrayList<FileData> send) {
+    public void sendFiles(ArrayList<FileData> recievedFiles, String destinationLocation) {
         //method to send files to a network member
         
     }
     
-    protected ArrayList<FileData> checkForChanges() throws IOException {
+    private ArrayList<FileData> checkForChanges() throws IOException {
         //method to check for changes in the folder to send to other devices and to internally log
         File[] directoryFiles = directory.listFiles();
         ArrayList<FileData> distributeFiles = new ArrayList<>();
@@ -133,7 +157,7 @@ public class Folder implements Serializable {
         return distributeFiles;
     }
     
-    protected ArrayList<FileData> getNewFiles(ArrayList<FileData> comparedFiles) {
+    private ArrayList<FileData> compareFiles(ArrayList<FileData> comparedFiles) {
         //Method to compare the modification date of local files and those contained in the sync notification
         ArrayList<FileData> requestFiles = new ArrayList<>();
         
