@@ -12,6 +12,7 @@ module UmbrellaPackage {
     requires eu.hansolo.tilesfx;
     requires java.sql;
     requires java.desktop;
+    requires mongo.java.driver;
 
     opens Controllers to javafx.fxml;
     exports UmbrellaPackage;
