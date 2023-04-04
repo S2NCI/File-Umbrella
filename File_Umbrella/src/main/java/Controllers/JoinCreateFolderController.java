@@ -1,7 +1,6 @@
 package Controllers;
 
 import java.net.InetAddress;
-import java.net.Inet4Address;
 import java.net.UnknownHostException;
 
 import com.mongodb.client.FindIterable;
@@ -46,7 +45,7 @@ public class JoinCreateFolderController {
 
         // determining user's IP to compare with database
         try {
-            currentIP = Inet4Address.getLocalHost().getHostName();
+            currentIP = InetAddress.getLocalHost().getHostAddress();
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
@@ -74,8 +73,8 @@ public class JoinCreateFolderController {
                 e.printStackTrace();
             }
         } else { // if user's IP is not found in database, open dialog box
-            Alert alert = new Alert(Alert.AlertType.WARNING, "You are not a member of any folders");
-            alert.initStyle(StageStyle.UNDECORATED);
+            Alert alert = new Alert(Alert.AlertType.ERROR, "You are not a member of any folders");
+            alert.initStyle(StageStyle.DECORATED);
             alert.showAndWait();
 
             if (alert.getResult() == ButtonType.OK){
@@ -96,8 +95,12 @@ public class JoinCreateFolderController {
 
     // cancel folder creation
     @FXML
-    private void cancelCreate(MouseEvent event){
-        System.exit(0);
+    private void cancelCreate(MouseEvent event) throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("/join-view.fxml"));
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.setScene(scene);
+        stage.show();
     }
 
     // generate folder ID using UUID and display it in the text field
@@ -125,7 +128,7 @@ public class JoinCreateFolderController {
         // get user ip
         String currentIP = null;
         try {
-            currentIP = Inet4Address.getLocalHost().getHostAddress();
+            currentIP = InetAddress.getLocalHost().getHostAddress();
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
@@ -135,14 +138,23 @@ public class JoinCreateFolderController {
         MongoDatabase database = mongoClient.getDatabase("UserConnection");
         MongoCollection<Document> collection = database.getCollection("IPAddress");
 
-        // create document to insert into database
-        Document folderDoc = new Document ("folderId", folderID)
-                .append("folderPassword", folderPassword)
-                .append("folderName", folderName)
-                .append("IPAddress", currentIP);
+        if (!folderName.isEmpty() && !folderPassword.isEmpty() && !folderID.isEmpty()) {
+            // create document to insert into database
+            Document folderDoc = new Document("folderId", folderID)
+                    .append("folderPassword", folderPassword)
+                    .append("folderName", folderName)
+                    .append("IPAddress", currentIP);
 
-        // insert foldername, folderid, folderpassword, and user ip into database
-        collection.insertOne(folderDoc);
+            // insert foldername, folderid, folderpassword, and user ip into database
+            collection.insertOne(folderDoc);
+
+            // open send scene
+            Parent root = FXMLLoader.load(getClass().getResource("/send-view.fxml"));
+            Scene scene = new Scene(root);
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(scene);
+            stage.show();
+        }
     }
 
 }

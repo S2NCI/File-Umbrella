@@ -4,6 +4,7 @@
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.effect.Blend?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -14,7 +15,8 @@
    <children>
       <AnchorPane layoutX="98.0" layoutY="46.0" prefHeight="470.0" prefWidth="992.0" style="-fx-background-color: #ffffff;">
          <children>
-            <FontAwesomeIconView fill="#6ea5ff" glyphName="EJECT" layoutX="447.0" layoutY="227.0" size="56" />
+            <ListView fx:id="fileListView" layoutY="-1.0" onDragDropped="#handleDragDrop" onDragOver="#handleDragOver" prefHeight="470.0" prefWidth="993.0" />
+            <FontAwesomeIconView fx:id="uploadIcn" fill="#6ea5ff" glyphName="EJECT" layoutX="447.0" layoutY="227.0" size="56" />
             <Button fx:id="btnUpload" layoutX="311.0" layoutY="243.0" mnemonicParsing="false" onAction="#handleFileUpload" onMouseClicked="#handleFileUpload" prefHeight="39.0" prefWidth="320.0" style="-fx-background-color: #6ea5ff;" text="Drag and Drop a File/Folder or Click to Upload..." textFill="WHITE">
                <font>
                   <Font name="MS Outlook" size="14.0" />
@@ -26,17 +28,17 @@
          </children></AnchorPane>
       <AnchorPane layoutY="32.0" prefHeight="483.0" prefWidth="83.0" style="-fx-background-color: #6ea5ff;">
          <children>
-            <FontAwesomeIconView fx:id="dlImgButton" fill="WHITE" glyphName="DOWNLOAD" layoutX="41.0" layoutY="66.0" size="25" wrappingWidth="22.300000190734863">
+            <FontAwesomeIconView fx:id="dlImgButton" fill="WHITE" glyphName="DOWNLOAD" layoutX="38.0" layoutY="109.0" size="25" wrappingWidth="22.300000190734863">
                <cursor>
                   <Cursor fx:constant="HAND" />
                </cursor>
             </FontAwesomeIconView>
-            <FontAwesomeIconView fill="WHITE" glyphName="UPLOAD" layoutX="40.0" layoutY="146.0" size="25">
+            <FontAwesomeIconView fill="WHITE" glyphName="UPLOAD" layoutX="37.0" layoutY="189.0" size="25">
                <cursor>
                   <Cursor fx:constant="HAND" />
                </cursor>
             </FontAwesomeIconView>
-            <Button fx:id="downloadSceneBtn" layoutX="6.0" layoutY="70.0" mnemonicParsing="false" onAction="#handleDownloadScene" prefHeight="27.0" prefWidth="93.0" style="-fx-background-color: transparent;" text="Downloads" textFill="WHITE">
+            <Button fx:id="downloadSceneBtn" layoutX="3.0" layoutY="113.0" mnemonicParsing="false" onAction="#handleDownloadScene" prefHeight="27.0" prefWidth="93.0" style="-fx-background-color: transparent;" text="Downloads" textFill="WHITE">
                <font>
                   <Font name="MS Outlook" size="14.0" />
                </font>
@@ -44,7 +46,7 @@
                   <Cursor fx:constant="HAND" />
                </cursor>
             </Button>
-            <Button layoutX="10.0" layoutY="150.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="85.0" style="-fx-background-color: transparent;" text="Send Files" textFill="WHITE">
+            <Button layoutX="7.0" layoutY="193.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="85.0" style="-fx-background-color: transparent;" text="Send Files" textFill="WHITE">
                <font>
                   <Font name="MS Outlook" size="14.0" />
                </font>
@@ -52,12 +54,12 @@
                   <Cursor fx:constant="HAND" />
                </cursor>
             </Button>
-            <FontAwesomeIconView fill="WHITE" glyphName="LOCK" layoutX="41.0" layoutY="230.0" size="25">
+            <FontAwesomeIconView fill="WHITE" glyphName="LOCK" layoutX="38.0" layoutY="273.0" size="25">
                <cursor>
                   <Cursor fx:constant="HAND" />
                </cursor>
             </FontAwesomeIconView>
-            <Button layoutX="7.0" layoutY="234.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="85.0" style="-fx-background-color: transparent;" text="Security" textFill="WHITE">
+            <Button layoutX="4.0" layoutY="277.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="85.0" style="-fx-background-color: transparent;" text="Security" textFill="WHITE">
                <font>
                   <Font name="MS Outlook" size="14.0" />
                </font>
@@ -67,7 +69,7 @@
             </Button>
          </children>
       </AnchorPane>
-      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#6ea5ff" height="52.0" layoutX="-8.0" layoutY="-6.0" stroke="TRANSPARENT" strokeType="INSIDE" width="1102.0" />
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#6ea5ff" height="52.0" layoutX="-8.0" layoutY="-6.0" stroke="TRANSPARENT" strokeType="INSIDE" width="1098.0" />
       <TextField layoutX="14.0" layoutY="9.0" opacity="0.73" prefHeight="26.0" prefWidth="308.0" promptText="Search" style="-fx-background-color: #6ea5ff; -fx-border-radius: 10px; -fx-border-color: #ffffff; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #ffffff;">
          <font>
             <Font name="Segoe UI" size="14.0" />
@@ -76,7 +78,7 @@
             <Blend />
          </effect>
       </TextField>
-      <FontAwesomeIconView fill="WHITE" glyphName="SEARCH" layoutX="306.0" layoutY="28.0" wrappingWidth="15.350000381469727" />
+      <FontAwesomeIconView fill="WHITE" glyphName="SEARCH" layoutX="292.0" layoutY="28.0" wrappingWidth="15.350000381469727" />
       <FontAwesomeIconView id="settings-icon" fx:id="settingsBtn" fill="WHITE" glyphName="COG" layoutX="1053.0" layoutY="30.0" onMouseReleased="#handleSettingsWindow" size="18" wrappingWidth="22.300000190734863">
          <cursor>
             <Cursor fx:constant="HAND" />

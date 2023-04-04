@@ -7,6 +7,7 @@ package UmbrellaPackage;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.awt.AWTException;
@@ -26,8 +27,11 @@ public class Main extends Application {
     public void start(Stage stage) throws AWTException, IOException {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/join-view.fxml"));
+            Image image = new Image("FileUmbrellaAppIcon.png");
+            stage.getIcons().add(image);
             Scene scene = new Scene(fxmlLoader.load(), 600, 400);
             stage.setTitle("File Umbrella");
+            // add the image from the res folder as the icon
             stage.setScene(scene);
             stage.setResizable(false);
             stage.show();

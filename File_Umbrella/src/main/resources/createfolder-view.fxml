@@ -6,13 +6,22 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.text.Font?>
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.JoinCreateFolderController">
    <left>
-      <AnchorPane prefHeight="400.0" prefWidth="150.0" style="-fx-background-color: #6ea5ff;" BorderPane.alignment="CENTER" />
+      <AnchorPane prefHeight="400.0" prefWidth="150.0" style="-fx-background-color: #6ea5ff;" BorderPane.alignment="CENTER">
+         <children>
+            <ImageView fitHeight="150.0" fitWidth="185.0" layoutY="108.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@File_Umbrella_Icon_Base.png" />
+               </image>
+            </ImageView>
+         </children></AnchorPane>
    </left>
    <center>
       <AnchorPane prefHeight="400.0" prefWidth="454.0" BorderPane.alignment="CENTER">

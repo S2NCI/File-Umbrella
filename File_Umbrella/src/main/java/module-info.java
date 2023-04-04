@@ -6,13 +6,13 @@ module UmbrellaPackage {
 
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;
-    requires validatorfx;
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
     requires java.sql;
     requires java.desktop;
     requires mongo.java.driver;
+    requires de.jensd.fx.glyphs.fontawesome;
 
     opens Controllers to javafx.fxml;
     exports UmbrellaPackage;
