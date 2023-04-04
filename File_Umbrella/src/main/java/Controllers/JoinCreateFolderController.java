@@ -3,6 +3,7 @@ package Controllers;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
@@ -28,6 +29,10 @@ public class JoinCreateFolderController {
 
     // JavaFX fields
     @FXML
+    public TextField folderIDTF;
+    @FXML
+    public TextField folderPassTF;
+    @FXML
     public Label btnCreateFolder;
     @FXML
     public TextField folderGen;
@@ -41,28 +46,23 @@ public class JoinCreateFolderController {
     @FXML
     private void handleAccountAuth(ActionEvent event) {
 
-        String currentIP = null;
-
-        // determining user's IP to compare with database
-        try {
-            currentIP = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
+        String folderId = folderIDTF.getText();
+        String folderPass = folderPassTF.getText();
 
         // establish connection to MongoDB database
         String connectionString = "mongodb+srv://admin:dbpass@cluster0.jmttrjk.mongodb.net/?retryWrites=true&w=majority";
         MongoClient mongoClient = DBController.createConnection(connectionString);
         MongoDatabase database = mongoClient.getDatabase("UserConnection");
-        MongoCollection<Document> collection = database.getCollection("IPAddress");
+        MongoCollection<Document> folderCollection = database.getCollection("FolderCollection");
 
-        // query database for user's IP
-        Document query = new Document("IPAddress", currentIP);
-        FindIterable<Document> result = collection.find(query);
+        BasicDBObject query = new BasicDBObject();
+        query.put("folderId", folderId);
+        query.put("folderPassword", folderPass);
 
-        // if user's IP is found in database, open send scene
-        if (result.first() != null) {
-            // open send scene
+        Document result = folderCollection.find(query).first();
+
+        // open send scene when folder ID and password match
+        if (result != null) {
             try {
                 Parent root = FXMLLoader.load(getClass().getResource("/send-view.fxml"));
                 Scene scene = new Scene(root);
@@ -72,14 +72,12 @@ public class JoinCreateFolderController {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        } else { // if user's IP is not found in database, open dialog box
-            Alert alert = new Alert(Alert.AlertType.ERROR, "You are not a member of any folders");
-            alert.initStyle(StageStyle.DECORATED);
+        } else {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Folder ID or Password is incorrect");
+            alert.setContentText("Please try again");
             alert.showAndWait();
-
-            if (alert.getResult() == ButtonType.OK){
-                alert.close();
-            }
         }
     }
 
@@ -136,7 +134,7 @@ public class JoinCreateFolderController {
         String connectionString = "mongodb+srv://admin:dbpass@cluster0.jmttrjk.mongodb.net/?retryWrites=true&w=majority";
         MongoClient mongoClient = DBController.createConnection(connectionString);
         MongoDatabase database = mongoClient.getDatabase("UserConnection");
-        MongoCollection<Document> collection = database.getCollection("IPAddress");
+        MongoCollection<Document> collection = database.getCollection("FolderCollection");
 
         if (!folderName.isEmpty() && !folderPassword.isEmpty() && !folderID.isEmpty()) {
             // create document to insert into database
