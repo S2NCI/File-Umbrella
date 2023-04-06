@@ -16,8 +16,8 @@ import java.io.File;
 
 public class Folder implements Serializable {
     private File directory;
-    private int id;
-    private String managementPassword;
+    private String id;
+    private String accessPassword;
     private ArrayList<String> members = new ArrayList<>();
     private ArrayList<FileData> savedFiles = new ArrayList<>();
     private boolean autoUpdate; //if true skip 
@@ -51,14 +51,14 @@ public class Folder implements Serializable {
         return directory.getName();
     }
 
-    public int getID() {
+    public String getID() {
         return id;
     }
 
-    public Folder(File directory, int id, String managementPassword, boolean autoUpdate, boolean autoShare) {
+    public Folder(File directory, String id, String accessPassword, boolean autoUpdate, boolean autoShare) {
         this.directory = directory;
         this.id = id;
-        this.managementPassword = managementPassword;
+        this.accessPassword = accessPassword;
         this.autoUpdate = autoUpdate;
         this.autoShare = autoShare;
         createFolder();
@@ -67,7 +67,13 @@ public class Folder implements Serializable {
     
     private void createFolder() {
         //method to create a directory folder to read files from
-    
+        //TODO: create folder
+
+        //section to check if directory doesn't yet exist
+
+        //section to create directory if it doesn't using File datatype
+
+
     }
     
     private void placeINI() {
@@ -107,7 +113,7 @@ public class Folder implements Serializable {
         
         for(String IP : members) {
             //TODO attempt to send this envelope to each member ip through socket
-            Distributor.sendEnvelope(e);
+            FileDistributor.sendEnvelope(e);
         }
     }
     

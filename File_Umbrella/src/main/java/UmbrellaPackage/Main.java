@@ -5,10 +5,11 @@
 package UmbrellaPackage;
 
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 
 import java.awt.AWTException;
 import java.io.IOException;

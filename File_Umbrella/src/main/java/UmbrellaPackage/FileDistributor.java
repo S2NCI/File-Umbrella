@@ -15,12 +15,12 @@ import java.net.Socket;
  * @partialsource 
  * https://heptadecane.medium.com/file-transfer-via-java-sockets-e8d4f30703a5
  */
-public class Distributor {
+public class FileDistributor {
     
     private static DataOutputStream dataOutputStream = null;
     private static DataInputStream dataInputStream = null;
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         try(ServerSocket serverSocket = new ServerSocket(5000)){
             System.out.println("listening to port:5000");
             Socket clientSocket = serverSocket.accept();
@@ -37,7 +37,7 @@ public class Distributor {
         } catch (Exception e){
             e.printStackTrace();
         }
-    }
+    }*/
 
     private static void receiveFile(String fileName) throws Exception{
         int bytes = 0;
