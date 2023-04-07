@@ -13,6 +13,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.stage.Stage;
@@ -67,6 +68,8 @@ public class SendReceiveController {
         }
     }
 
+    //
+
     public void handleDragOver(DragEvent dragEvent) {
         dragEvent.acceptTransferModes(TransferMode.COPY_OR_MOVE);
         dragEvent.consume();
@@ -104,5 +107,22 @@ public class SendReceiveController {
                 }
             }
         });
+
+        fileListView.setOnDragDropped(event -> {
+            Dragboard drag = event.getDragboard();
+            boolean success = false;
+            if (drag.hasFiles()){
+                for (File file : drag.getFiles()){
+                    if(!fileList.contains(file)) {
+                        fileListView.getItems().add(file);
+                    }
+                }
+                success = true;
+            }
+            event.setDropCompleted(success);
+            event.consume();
+        });
+
+
     }
 }

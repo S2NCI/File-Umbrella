@@ -14,9 +14,9 @@
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.JoinCreateFolderController">
    <left>
-      <AnchorPane prefHeight="400.0" prefWidth="150.0" style="-fx-background-color: #6ea5ff;" BorderPane.alignment="CENTER">
+      <AnchorPane prefHeight="400.0" prefWidth="175.0" style="-fx-background-color: #6ea5ff;" BorderPane.alignment="CENTER">
          <children>
-            <ImageView fitHeight="150.0" fitWidth="185.0" layoutY="108.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fitHeight="150.0" fitWidth="185.0" layoutX="13.0" layoutY="125.0" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@File_Umbrella_Icon_Base.png" />
                </image>
@@ -37,7 +37,7 @@
                   <Font name="MS Outlook" size="12.0" />
                </font>
             </TextField>
-            <Button fx:id="btnHandleNewFolder" layoutX="165.0" layoutY="302.0" mnemonicParsing="false" onAction="#handleFolderCreation" prefHeight="27.0" prefWidth="125.0" style="-fx-background-color: #6ea5ff;" text="Create Folder" textFill="WHITE">
+            <Button fx:id="btnHandleNewFolder" layoutX="163.0" layoutY="278.0" mnemonicParsing="false" onAction="#handleFolderCreation" prefHeight="27.0" prefWidth="125.0" style="-fx-background-color: #6ea5ff;" text="Create Folder" textFill="WHITE">
                <font>
                   <Font name="MS Outlook" size="14.0" />
                </font>
@@ -55,7 +55,7 @@
                   <Font name="MS Outlook" size="18.0" />
                </font>
             </Label>
-            <Label fx:id="btnCancel" layoutX="208.0" layoutY="353.0" onMouseClicked="#cancelCreate" text="Cancel" textFill="#6ea5ff">
+            <Label fx:id="btnCancel" layoutX="208.0" layoutY="333.0" onMouseClicked="#cancelCreate" text="Cancel" textFill="#6ea5ff">
                <font>
                   <Font name="MS Outlook" size="12.0" />
                </font>
