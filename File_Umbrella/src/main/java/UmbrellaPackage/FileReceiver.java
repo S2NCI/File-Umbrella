@@ -4,18 +4,26 @@
  */
 package UmbrellaPackage;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.net.Socket;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.stage.Stage;
+
+import java.io.*;
+import java.util.Objects;
 
 /**
  * @authors Team 19
  * @partialsource 
  * https://heptadecane.medium.com/file-transfer-via-java-sockets-e8d4f30703a5
  */
-public class FileReciever {
+public class FileReceiver {
+    @FXML
+    public Button sendSceneBtn;
     private static DataOutputStream dataOutputStream = null;
     private static DataInputStream dataInputStream = null;
 
@@ -49,4 +57,15 @@ public class FileReciever {
         }
         fileInputStream.close();
     }
+
+    // opens send scene
+    public void handleSendScene(ActionEvent event) throws IOException {
+        // open send scene
+        Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/send-view.fxml")));
+        Scene sendScene = new Scene(root);
+        Stage window = (Stage)((Node)event.getSource()).getScene().getWindow();
+        window.setScene(sendScene);
+        window.show();
+    }
+
 }

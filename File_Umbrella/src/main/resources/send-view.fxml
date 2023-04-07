@@ -12,7 +12,7 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefWidth="1102.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.SendReceiveController">
+<AnchorPane prefWidth="1102.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="UmbrellaPackage.FileDistributor">
    <children>
       <AnchorPane layoutX="98.0" layoutY="46.0" style="-fx-background-color: #ffffff;">
          <children>

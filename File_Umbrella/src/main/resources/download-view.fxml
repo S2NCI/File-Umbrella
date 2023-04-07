@@ -11,12 +11,12 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.UIFileController">
+<AnchorPane xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="UmbrellaPackage.FileReceiver">
    <children>
       <AnchorPane layoutX="98.0" layoutY="46.0" prefHeight="470.0" prefWidth="992.0" style="-fx-background-color: #ffffff;">
          <children>
             <FontAwesomeIconView fill="#6ea5ff" glyphName="FOLDER" layoutX="496.0" layoutY="210.0" size="56" />
-            <Button fx:id="viewIncoming" layoutX="362.0" layoutY="244.0" mnemonicParsing="false" onAction="#handleViewIncoming" prefHeight="39.0" prefWidth="320.0" style="-fx-background-color: #6ea5ff;" text="View your incoming files" textFill="WHITE">
+            <Button fx:id="viewIncoming" layoutX="362.0" layoutY="244.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="320.0" style="-fx-background-color: #6ea5ff;" text="View your incoming files" textFill="WHITE">
                <font>
                   <Font name="MS Outlook" size="14.0" />
                </font>

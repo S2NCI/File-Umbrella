@@ -4,11 +4,31 @@
  */
 package UmbrellaPackage;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.FileOutputStream;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TransferMode;
+import javafx.stage.Stage;
+
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.List;
 
 /**
  * @authors Team 19
@@ -16,28 +36,19 @@ import java.net.Socket;
  * https://heptadecane.medium.com/file-transfer-via-java-sockets-e8d4f30703a5
  */
 public class FileDistributor {
-    
+
+    // JavaFX fields
+    @FXML
+    public Button downloadSceneBtn;
+    public ListView fileListView;
+    @FXML
+    public Button btnUpload;
+    @FXML
+    public FontAwesomeIconView uploadIcn;
+    private ObservableList<File> fileList = FXCollections.observableArrayList();
     private static DataOutputStream dataOutputStream = null;
     private static DataInputStream dataInputStream = null;
 
-    /*public static void main(String[] args) {
-        try(ServerSocket serverSocket = new ServerSocket(5000)){
-            System.out.println("listening to port:5000");
-            Socket clientSocket = serverSocket.accept();
-            System.out.println(clientSocket+" connected.");
-            dataInputStream = new DataInputStream(clientSocket.getInputStream());
-            dataOutputStream = new DataOutputStream(clientSocket.getOutputStream());
-
-            receiveFile("NewFile1.pdf");
-            receiveFile("NewFile2.pdf");
-
-            dataInputStream.close();
-            dataOutputStream.close();
-            clientSocket.close();
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-    }*/
 
     private static void receiveFile(String fileName) throws Exception{
         int bytes = 0;
@@ -59,4 +70,90 @@ public class FileDistributor {
     public static void sendEnvelope(Envelope e) {
         
     }
+
+
+    // JavaFX methods to handle events
+    public void handleFileUpload(ActionEvent event) {
+    }
+
+
+    // opens the settings scene
+    public void handleSettingsWindow(MouseEvent event) {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/settings-view.fxml"));
+            Scene scene = new Scene(root);
+            Stage stage = new Stage();
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //
+
+    public void handleDragOver(DragEvent dragEvent) {
+        dragEvent.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+        dragEvent.consume();
+    }
+
+
+    public void handleDragDrop(DragEvent dragEvent) {
+        List<File> droppedFiles = dragEvent.getDragboard().getFiles();
+        fileListView.setOnDragDropped(event -> {
+            fileList.addAll(droppedFiles);
+            fileListView.setItems(fileList);
+        });
+        dragEvent.setDropCompleted(true);
+        dragEvent.consume();
+
+        if(droppedFiles.size() > 0) {
+            btnUpload.setVisible(false);
+            btnUpload.setDisable(true);
+            uploadIcn.setVisible(false);
+        }
+
+        fileListView.setCellFactory(param -> new ListCell<File>() {
+            private ImageView imageView = new ImageView();
+
+            @Override
+            public void updateItem(File file, boolean empty) {
+                super.updateItem(file, empty);
+                if (empty) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    setText(file.getName());
+                    imageView.setImage(new Image(file.toURI().toString()));
+                    setGraphic(imageView);
+                }
+            }
+        });
+
+        fileListView.setOnDragDropped(event -> {
+            Dragboard drag = event.getDragboard();
+            boolean success = false;
+            if (drag.hasFiles()){
+                for (File file : drag.getFiles()){
+                    if(!fileList.contains(file)) {
+                        fileListView.getItems().add(file);
+                    }
+                }
+                success = true;
+            }
+            event.setDropCompleted(success);
+            event.consume();
+        });
+
+
+    }
+    public void handleDownloadScene(ActionEvent event) throws IOException {
+        // open download scene
+        Parent root = FXMLLoader.load(getClass().getResource("/download-view.fxml"));
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.setScene(scene);
+        stage.show();
+    }
+
 }
