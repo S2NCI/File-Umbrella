@@ -4,12 +4,19 @@
  */
 package UmbrellaPackage;
 
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.IOException;
 import javax.imageio.ImageIO;
 
 /**
@@ -27,7 +34,7 @@ public class TrayInterface {
         
         // Create a usable icon from the image file
         try {
-            File pathToFile = new File("Assets/File_Umbrella_Icon_Base.png");
+            File pathToFile = new File("File_Umbrella_Icon_Base.png");
             iconImage = ImageIO.read(pathToFile);
         } catch (Exception e) {
             e.printStackTrace();
@@ -44,7 +51,17 @@ public class TrayInterface {
         trayIcon.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 if(e.getButton() == MouseEvent.BUTTON1) {
-                    // open jframe here
+                    // open login scene
+                    Parent root = null;
+                    try {
+                        root = FXMLLoader.load(getClass().getResource("/join-view.fxml"));
+                        Scene scene = new Scene(root);
+                        Stage stage = (Stage) ((Node) e.getSource()).getScene().getWindow();
+                        stage.setScene(scene);
+                        stage.show();
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
                 if(e.getButton() == MouseEvent.BUTTON3) {
                     frame.add(popup);
@@ -52,7 +69,6 @@ public class TrayInterface {
                 } 
             }
         });
-        
         tray.add(trayIcon);
     }
     

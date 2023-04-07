@@ -3,6 +3,7 @@ package Controllers;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import UmbrellaPackage.Main;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
@@ -26,6 +27,7 @@ import java.util.UUID;
 public class JoinCreateFolderController {
 
     // JavaFX fields
+    Main m = new Main();
     @FXML
     public TextField folderIDTF;
     @FXML
@@ -62,6 +64,7 @@ public class JoinCreateFolderController {
         // open send scene when folder ID and password match
         if (result != null) {
             try {
+                m.storeLastView("send-view.fxml");
                 Parent root = FXMLLoader.load(getClass().getResource("/send-view.fxml"));
                 Scene scene = new Scene(root);
                 Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
@@ -82,6 +85,7 @@ public class JoinCreateFolderController {
     // open create folder scene when create folder button is clicked
     @FXML
     private void handleCreateFolder(MouseEvent event) throws IOException {
+        m.storeLastView("createfolder-view.fxml");
         Parent root = FXMLLoader.load(getClass().getResource("/createfolder-view.fxml"));
         Scene scene = new Scene(root);
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
@@ -92,6 +96,7 @@ public class JoinCreateFolderController {
     // cancel folder creation
     @FXML
     private void cancelCreate(MouseEvent event) throws IOException {
+        m.storeLastView("join-view.fxml");
         Parent root = FXMLLoader.load(getClass().getResource("/join-view.fxml"));
         Scene scene = new Scene(root);
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
