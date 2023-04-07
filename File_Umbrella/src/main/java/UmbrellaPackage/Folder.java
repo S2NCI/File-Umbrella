@@ -101,7 +101,7 @@ public class Folder implements Serializable {
         //method to request files from a specific network member
         if(autoUpdate || true) {//request permission, true is a UI placeholder
             //create envelope of files to be requested
-            Envelope e = new Envelope(id, true, compareFiles(recievedFiles));
+            Envelope e = new Envelope(1, true, compareFiles(recievedFiles));
             
             //TODO: move over socket
         }
@@ -109,7 +109,7 @@ public class Folder implements Serializable {
     
     public void sendChanges(ArrayList<FileData> changedFiles) {
         //method to send notice of file changes to network members
-        Envelope e = new Envelope(id, false, changedFiles);
+        Envelope e = new Envelope(1, false, changedFiles);
         
         for(String IP : members) {
             //TODO attempt to send this envelope to each member ip through socket

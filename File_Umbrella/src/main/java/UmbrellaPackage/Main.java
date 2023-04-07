@@ -51,7 +51,7 @@ public class Main extends Application {
         
         //find matching folder id
         for(Folder f : folders) {
-            if(f.getID() != destinationID) continue;
+            if(!f.getID().matches(String.valueOf(destinationID))) continue;
             
             boolean memberExists = false;
             for(String m : f.getMembers()) {

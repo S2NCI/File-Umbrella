@@ -12,13 +12,13 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.SendReceiveController">
+<AnchorPane prefWidth="1102.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.SendReceiveController">
    <children>
       <AnchorPane layoutX="98.0" layoutY="46.0" style="-fx-background-color: #ffffff;">
          <children>
-            <ListView fx:id="fileListView" fixedCellSize="0.0" layoutX="117.0" onDragDropped="#handleDragDrop" onDragOver="#handleDragOver" prefHeight="475.0" prefWidth="881.0" />
-            <FontAwesomeIconView fx:id="uploadIcn" fill="#6ea5ff" glyphName="EJECT" layoutX="490.0" layoutY="211.0" size="56" />
-            <Button fx:id="btnUpload" layoutX="354.0" layoutY="235.0" mnemonicParsing="false" onAction="#handleFileUpload" onMouseClicked="#handleFileUpload" prefHeight="39.0" prefWidth="320.0" style="-fx-background-color: #6ea5ff;" text="Drag and Drop a File/Folder or Click to Upload..." textFill="WHITE">
+            <ListView fx:id="fileListView" fixedCellSize="0.0" layoutX="117.0" onDragDropped="#handleDragDrop" onDragOver="#handleDragOver" prefHeight="475.0" prefWidth="884.0" />
+            <FontAwesomeIconView fx:id="uploadIcn" fill="#6ea5ff" glyphName="EJECT" layoutX="490.0" layoutY="211.0" size="56" AnchorPane.bottomAnchor="256.0" AnchorPane.leftAnchor="490.0" AnchorPane.rightAnchor="462.9375" AnchorPane.topAnchor="163.0" />
+            <Button fx:id="btnUpload" layoutX="354.0" layoutY="238.0" mnemonicParsing="false" onAction="#handleFileUpload" onMouseClicked="#handleFileUpload" prefHeight="39.0" prefWidth="320.0" style="-fx-background-color: #6ea5ff;" text="Drag and Drop a File/Folder or Click to Upload..." textFill="WHITE" AnchorPane.bottomAnchor="198.0" AnchorPane.leftAnchor="354.0" AnchorPane.rightAnchor="327.0" AnchorPane.topAnchor="238.0">
                <font>
                   <Font name="MS Outlook" size="14.0" />
                </font>
@@ -27,9 +27,9 @@
                </cursor>
             </Button>
          </children></AnchorPane>
-      <AnchorPane layoutY="32.0" prefHeight="489.0" prefWidth="215.0" style="-fx-background-color: #6ea5ff;">
+      <AnchorPane layoutY="27.0" prefHeight="494.0" prefWidth="215.0" style="-fx-background-color: #6ea5ff;">
          <children>
-            <ImageView fitHeight="108.0" fitWidth="149.0" layoutX="54.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fitHeight="132.0" fitWidth="120.0" layoutX="48.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@File_Umbrella_Icon_Base_250x250.png" />
                </image>
@@ -73,20 +73,10 @@
                   <Cursor fx:constant="HAND" />
                </cursor>
             </FontAwesomeIconView>
-            <Button layoutX="64.0" layoutY="386.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="88.0" style="-fx-background-color: #6ea5ff;" text="Confirm" textFill="WHITE">
-               <font>
-                  <Font name="MS Outlook" size="14.0" />
-               </font>
-            </Button>
-            <Button layoutX="54.0" layoutY="435.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="108.0" style="-fx-background-color: #F46B5F;" text="Remove Files" textFill="WHITE">
-               <font>
-                  <Font name="MS Outlook" size="14.0" />
-               </font>
-            </Button>
          </children>
       </AnchorPane>
-      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#6ea5ff" height="52.0" layoutX="-8.0" layoutY="-6.0" stroke="TRANSPARENT" strokeType="INSIDE" width="1110.0" />
-      <TextField fx:id="searchBar" layoutX="441.0" layoutY="9.0" opacity="0.73" prefHeight="26.0" prefWidth="308.0" promptText="Search" style="-fx-background-color: #6ea5ff; -fx-border-radius: 10px; -fx-border-color: #ffffff; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #ffffff;">
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#6ea5ff" height="56.0" layoutX="-8.0" layoutY="-6.0" stroke="TRANSPARENT" strokeType="INSIDE" width="1110.0" />
+      <TextField fx:id="searchBar" layoutX="437.0" layoutY="8.0" opacity="0.73" prefHeight="30.0" prefWidth="320.0" promptText="Search" style="-fx-background-color: #6ea5ff; -fx-border-radius: 10px; -fx-border-color: #ffffff; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #ffffff;">
          <font>
             <Font name="Segoe UI" size="14.0" />
          </font>
@@ -94,7 +84,7 @@
             <Blend />
          </effect>
       </TextField>
-      <FontAwesomeIconView fill="WHITE" glyphName="SEARCH" layoutX="719.0" layoutY="28.0" wrappingWidth="15.350000381469727" />
+      <FontAwesomeIconView fill="WHITE" glyphName="SEARCH" layoutX="732.0" layoutY="27.0" wrappingWidth="15.350000381469727" />
       <FontAwesomeIconView id="settings-icon" fx:id="settingsBtn" fill="WHITE" glyphName="COG" layoutX="1053.0" layoutY="30.0" onMouseReleased="#handleSettingsWindow" size="18" wrappingWidth="22.300000190734863">
          <cursor>
             <Cursor fx:constant="HAND" />
