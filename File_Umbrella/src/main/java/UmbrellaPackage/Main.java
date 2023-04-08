@@ -13,6 +13,7 @@ import javafx.stage.Stage;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXMLLoader;
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.prefs.Preferences;
@@ -151,7 +152,7 @@ public class Main extends Application {
         }
     }
 
-    public static void main(String[] args) throws AWTException {
+    public static void main(String[] args) {
         launch();
     }
 
@@ -244,10 +245,4 @@ public class Main extends Application {
         }
     }
      */
-
-    // create system tray icon
-    public static void createTrayIcon() throws AWTException, IOException {
-        TrayInterface ti = new TrayInterface();
-        ti.addIcon();
-    }
 }

@@ -4,7 +4,9 @@
  */
 package UmbrellaPackage;
 
+import Controllers.CustomFileViewController;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -25,19 +27,27 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.stage.Stage;
 
+import javax.swing.*;
+import javax.swing.filechooser.FileView;
 import java.io.*;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
 
 /**
  * @authors Team 19
- * @partialsource 
- * https://heptadecane.medium.com/file-transfer-via-java-sockets-e8d4f30703a5
+ * @partialsource https://heptadecane.medium.com/file-transfer-via-java-sockets-e8d4f30703a5
  */
 public class FileDistributor {
 
     // JavaFX fields
+    @FXML
+    public FontAwesomeIconView plusIcon;
+    @FXML
+    public FontAwesomeIconView sendIcon;
+    @FXML
+    public Button sendFilesBtn;
+    @FXML
+    public Button addBtn;
     @FXML
     public Button downloadSceneBtn;
     public ListView fileListView;
@@ -50,30 +60,55 @@ public class FileDistributor {
     private static DataInputStream dataInputStream = null;
 
 
-    private static void receiveFile(String fileName) throws Exception{
+    private static void receiveFile(String fileName) throws Exception {
         int bytes = 0;
         FileOutputStream fileOutputStream = new FileOutputStream(fileName);
-        
+
         long size = dataInputStream.readLong();     // read file size
-        byte[] buffer = new byte[4*1024];
-        while (size > 0 && (bytes = dataInputStream.read(buffer, 0, (int)Math.min(buffer.length, size))) != -1) {
-            fileOutputStream.write(buffer,0,bytes);
+        byte[] buffer = new byte[4 * 1024];
+        while (size > 0 && (bytes = dataInputStream.read(buffer, 0, (int) Math.min(buffer.length, size))) != -1) {
+            fileOutputStream.write(buffer, 0, bytes);
             size -= bytes;      // read upto file size
         }
         fileOutputStream.close();
     }
-    
-    public static void sendFile() {
-        
-    }
-    
+
+
+
     public static void sendEnvelope(Envelope e) {
-        
+
     }
 
 
     // JavaFX methods to handle events
-    public void handleFileUpload(ActionEvent event) {
+    public void handleFileUpload(ActionEvent event) throws UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+        UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+        Platform.runLater(() -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Select file(s)/folder(s) to upload");
+            fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+            // just show the file name and not the full path and icon of the file type in the list
+
+            // add a filter to only show files
+            fileChooser.setAcceptAllFileFilterUsed(false);
+            // add the file to the list
+            int returnValue = fileChooser.showOpenDialog(null);
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = fileChooser.getSelectedFile();
+                // just display the file name
+                String fileName = selectedFile.getName();
+                fileList.add(new File(fileName));
+                fileListView.setItems(fileList);
+                // hide the upload button
+                btnUpload.setVisible(false);
+                btnUpload.setDisable(true);
+                uploadIcn.setVisible(false);
+                addBtn.setVisible(true);
+                addBtn.setDisable(false);
+                sendIcon.setVisible(true);
+                sendFilesBtn.setVisible(true);
+            }
+        });
     }
 
 
@@ -107,7 +142,7 @@ public class FileDistributor {
         dragEvent.setDropCompleted(true);
         dragEvent.consume();
 
-        if(droppedFiles.size() > 0) {
+        if (droppedFiles.size() > 0) {
             btnUpload.setVisible(false);
             btnUpload.setDisable(true);
             uploadIcn.setVisible(false);
@@ -133,9 +168,9 @@ public class FileDistributor {
         fileListView.setOnDragDropped(event -> {
             Dragboard drag = event.getDragboard();
             boolean success = false;
-            if (drag.hasFiles()){
-                for (File file : drag.getFiles()){
-                    if(!fileList.contains(file)) {
+            if (drag.hasFiles()) {
+                for (File file : drag.getFiles()) {
+                    if (!fileList.contains(file)) {
                         fileListView.getItems().add(file);
                     }
                 }
@@ -147,6 +182,30 @@ public class FileDistributor {
 
 
     }
+
+    public void sendFile(MouseEvent event) throws IOException {
+        // if the user has selected files to send then send them
+        if (fileList.size() > 0) {
+            // new fileinputstream and get the absolute path of the file
+            FileInputStream inputStream = new FileInputStream(fileList.get(0).getCanonicalFile());
+            Socket socket = new Socket("localhost", 5000);
+
+            DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
+
+            String fileName = fileList.get(0).getName();
+            byte[] fileBytes = fileName.getBytes();
+
+            byte[] fileContentBytes = new byte[(int) fileList.get(0).length()];
+            inputStream.read(fileContentBytes);
+
+            dataOutputStream.writeInt(fileBytes.length);
+            dataOutputStream.write(fileBytes);
+
+            dataOutputStream.writeInt(fileContentBytes.length);
+            dataOutputStream.write(fileContentBytes);
+        }
+    }
+
     public void handleDownloadScene(ActionEvent event) throws IOException {
         // open download scene
         Parent root = FXMLLoader.load(getClass().getResource("/download-view.fxml"));
@@ -156,4 +215,33 @@ public class FileDistributor {
         stage.show();
     }
 
+    public void handleFileUploadPlus(MouseEvent event) throws UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+        UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+        Platform.runLater(() -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Select file(s)/folder(s) to upload");
+            fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            // allow multiple files to be selected
+            fileChooser.setMultiSelectionEnabled(true);
+            // only let a limited number of files be selected
+            fileChooser.setFileHidingEnabled(true);
+            // add the file to the list
+            int returnValue = fileChooser.showOpenDialog(null);
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = fileChooser.getSelectedFile();
+                // just display the file name
+                String fileName = selectedFile.getName();
+                fileList.add(new File(fileName));
+                fileListView.setItems(fileList);
+                // hide the upload button
+                btnUpload.setVisible(false);
+                btnUpload.setDisable(true);
+                uploadIcn.setVisible(false);
+                addBtn.setVisible(true);
+                addBtn.setDisable(false);
+                sendIcon.setVisible(true);
+                sendFilesBtn.setVisible(true);
+            }
+        });
+    }
 }
