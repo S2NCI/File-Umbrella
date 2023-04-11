@@ -15,6 +15,7 @@ import javafx.stage.Stage;
 
 import java.io.*;
 import java.net.*;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -58,39 +59,37 @@ public class FileReceiver {
 
     public void handleFileReceive(ActionEvent event) throws IOException {
         byte[] receiveBuffer = new byte[1024];
-        MulticastSocket multicastSocket = new MulticastSocket(8888);
         InetAddress group = InetAddress.getByName("224.0.0.1");
 
-        multicastSocket.joinGroup(group);
+        try (MulticastSocket multicastSocket = new MulticastSocket(new InetSocketAddress(group, 8888))) {
+            multicastSocket.joinGroup(new InetSocketAddress(group, 8888), NetworkInterface.getByInetAddress(InetAddress.getLocalHost()));
+            DatagramPacket receivePacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
+            multicastSocket.receive(receivePacket);
+            multicastSocket.leaveGroup(new InetSocketAddress(group, 8888), NetworkInterface.getByInetAddress(InetAddress.getLocalHost()));
 
-        DatagramPacket receivePacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
-        multicastSocket.receive(receivePacket);
+            String message = new String(receivePacket.getData()).trim();
+            InetAddress senderAddress = receivePacket.getAddress();
+            int senderPort = receivePacket.getPort();
 
-        String message = new String(receivePacket.getData()).trim();
+            try (Socket socket = new Socket(senderAddress, senderPort)) {
+                ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
+                List<File> fileList = (List<File>) objectInputStream.readObject();
+                objectInputStream.close();
 
-        InetAddress senderAddress = receivePacket.getAddress();
-
-        int senderPort = receivePacket.getPort();
-
-        try (Socket socket = new Socket(senderAddress, senderPort)) {
-            InputStream inputStream = socket.getInputStream();
-
-            FileOutputStream fileOutputStream = new FileOutputStream("C:\\Users\\Public\\Downloads\\" + message);
-
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                fileOutputStream.write(buffer, 0, bytesRead);
+                for (File file : fileList) {
+                    InputStream inputStream = socket.getInputStream();
+                    FileOutputStream fileOutputStream = new FileOutputStream(file);
+                    byte[] buffer = new byte[1024];
+                    int bytesRead;
+                    while ((bytesRead = inputStream.read(buffer)) != -1) {
+                        fileOutputStream.write(buffer, 0, bytesRead);
+                    }
+                    fileOutputStream.close();
+                }
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
             }
-
-            fileOutputStream.close();
-            inputStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-
-        multicastSocket.leaveGroup(group);
-        multicastSocket.close();
     }
+
 }

@@ -187,26 +187,25 @@ public class FileDistributor {
 
     public void sendFile(MouseEvent event) throws IOException {
         byte[] multicastMessage = "DISCOVER_SERVER_REQUEST".getBytes();
-        MulticastSocket multiSocket = new MulticastSocket();
 
         InetAddress group = InetAddress.getByName("224.0.0.1");
 
-        multiSocket.joinGroup(group);
+        try (MulticastSocket multiSocket = new MulticastSocket()) {
+            multiSocket.joinGroup(new InetSocketAddress(group, 8888), NetworkInterface.getByInetAddress(InetAddress.getLocalHost()));
+            DatagramPacket packet = new DatagramPacket(multicastMessage, multicastMessage.length, group, 8888);
+            multiSocket.send(packet);
 
-        DatagramPacket packet = new DatagramPacket(multicastMessage, multicastMessage.length, group, 8888);
+            multiSocket.leaveGroup(new InetSocketAddress(group, 8888), NetworkInterface.getByInetAddress(InetAddress.getLocalHost()));
+        }
 
-        multiSocket.send(packet);
-        multiSocket.leaveGroup(group);
-        multiSocket.close();
 
         // send the file list and file data
         try (Socket socket = new Socket()) {
             String host = InetAddress.getLocalHost().getHostAddress();
             int port = 8888;
             socket.connect(new InetSocketAddress(host, port), 5000);
-
-            // send file list
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+            objectOutputStream.flush();
             objectOutputStream.writeObject(fileList);
             objectOutputStream.flush();
 
