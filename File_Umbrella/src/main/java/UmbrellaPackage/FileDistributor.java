@@ -25,10 +25,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.stage.Stage;
 
-import javax.jmdns.JmDNS;
-import javax.jmdns.ServiceEvent;
 
-import javax.jmdns.ServiceListener;
 import javax.swing.*;
 import java.io.*;
 import java.net.*;
@@ -202,20 +199,34 @@ public class FileDistributor {
         multiSocket.leaveGroup(group);
         multiSocket.close();
 
-        // send the file
-        try(Socket socket = new Socket()){
+        // send the file list and file data
+        try (Socket socket = new Socket()) {
             String host = InetAddress.getLocalHost().getHostAddress();
             int port = 8888;
             socket.connect(new InetSocketAddress(host, port), 5000);
+
+            // send file list
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-            objectOutputStream.flush();
             objectOutputStream.writeObject(fileList);
             objectOutputStream.flush();
+
+            // send file data
+            for (File file : fileList) {
+                FileInputStream fileInputStream = new FileInputStream(file);
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+                    socket.getOutputStream().write(buffer, 0, bytesRead);
+                }
+                fileInputStream.close();
+            }
+
             objectOutputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 
     public void handleDownloadScene(ActionEvent event) throws IOException {
         // open download scene
@@ -230,7 +241,7 @@ public class FileDistributor {
         UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
         try {
             handleFileUpload(event);
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             System.out.println("Method redirected to handleFileUpload");
         }
     }

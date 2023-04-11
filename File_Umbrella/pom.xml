@@ -65,11 +65,6 @@
             <version>12.3.1</version>
         </dependency>
         <dependency>
-            <groupId>org.jmdns</groupId>
-            <artifactId>jmdns</artifactId>
-            <version>3.5.8</version>
-        </dependency>
-        <dependency>
             <groupId>org.kordamp.bootstrapfx</groupId>
             <artifactId>bootstrapfx-core</artifactId>
             <version>0.4.0</version>

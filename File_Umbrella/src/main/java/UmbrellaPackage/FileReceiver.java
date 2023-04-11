@@ -14,10 +14,7 @@ import javafx.scene.control.Button;
 import javafx.stage.Stage;
 
 import java.io.*;
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
-import java.net.ServerSocket;
+import java.net.*;
 import java.util.Objects;
 
 /**
@@ -74,6 +71,25 @@ public class FileReceiver {
         InetAddress senderAddress = receivePacket.getAddress();
 
         int senderPort = receivePacket.getPort();
+
+        try (Socket socket = new Socket(senderAddress, senderPort)) {
+            InputStream inputStream = socket.getInputStream();
+
+            FileOutputStream fileOutputStream = new FileOutputStream("C:\\Users\\Public\\Downloads\\" + message);
+
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                fileOutputStream.write(buffer, 0, bytesRead);
+            }
+
+            fileOutputStream.close();
+            inputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         multicastSocket.leaveGroup(group);
         multicastSocket.close();
     }
