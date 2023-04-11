@@ -17,7 +17,6 @@ import java.io.File;
 public class Folder implements Serializable {
     private File directory;
     private String id;
-    private String accessPassword;
     private ArrayList<String> members = new ArrayList<>();
     private ArrayList<FileData> savedFiles = new ArrayList<>();
     private boolean autoUpdate; //if true skip 
@@ -58,7 +57,6 @@ public class Folder implements Serializable {
     public Folder(File directory, String id, String accessPassword, boolean autoUpdate, boolean autoShare) {
         this.directory = directory;
         this.id = id;
-        this.accessPassword = accessPassword;
         this.autoUpdate = autoUpdate;
         this.autoShare = autoShare;
         createFolder();

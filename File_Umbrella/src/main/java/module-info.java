@@ -15,6 +15,7 @@ module UmbrellaPackage {
     requires de.jensd.fx.glyphs.fontawesome;
     requires javafx.swing;
     requires java.prefs;
+    requires javax.jmdns;
 
     opens Controllers to javafx.fxml;
     exports UmbrellaPackage;

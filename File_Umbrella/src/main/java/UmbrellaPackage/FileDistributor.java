@@ -4,7 +4,6 @@
  */
 package UmbrellaPackage;
 
-import Controllers.CustomFileViewController;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -16,7 +15,6 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
@@ -27,10 +25,13 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.stage.Stage;
 
+import javax.jmdns.JmDNS;
+import javax.jmdns.ServiceEvent;
+
+import javax.jmdns.ServiceListener;
 import javax.swing.*;
-import javax.swing.filechooser.FileView;
 import java.io.*;
-import java.net.Socket;
+import java.net.*;
 import java.util.List;
 
 /**
@@ -58,21 +59,25 @@ public class FileDistributor {
     private ObservableList<File> fileList = FXCollections.observableArrayList();
     private static DataOutputStream dataOutputStream = null;
     private static DataInputStream dataInputStream = null;
+    private static final int BUFFER_SIZE = 4096;
 
 
     private static void receiveFile(String fileName) throws Exception {
         int bytes = 0;
-        FileOutputStream fileOutputStream = new FileOutputStream(fileName);
+        FileOutputStream fileOutputStream = null;
+        try {
+            fileOutputStream = new FileOutputStream(fileName);
 
-        long size = dataInputStream.readLong();     // read file size
-        byte[] buffer = new byte[4 * 1024];
-        while (size > 0 && (bytes = dataInputStream.read(buffer, 0, (int) Math.min(buffer.length, size))) != -1) {
-            fileOutputStream.write(buffer, 0, bytes);
-            size -= bytes;      // read upto file size
+            long size = dataInputStream.readLong();     // read file size
+            byte[] buffer = new byte[4 * 1024];
+            while (size > 0 && (bytes = dataInputStream.read(buffer, 0, (int) Math.min(buffer.length, size))) != -1) {
+                fileOutputStream.write(buffer, 0, bytes);
+                size -= bytes;      // read upto file size
+            }
+        } finally {
+            fileOutputStream.close();
         }
-        fileOutputStream.close();
     }
-
 
 
     public static void sendEnvelope(Envelope e) {
@@ -142,7 +147,7 @@ public class FileDistributor {
         dragEvent.setDropCompleted(true);
         dragEvent.consume();
 
-        if (droppedFiles.size() > 0) {
+        if (!droppedFiles.isEmpty()) {
             btnUpload.setVisible(false);
             btnUpload.setDisable(true);
             uploadIcn.setVisible(false);
@@ -184,25 +189,31 @@ public class FileDistributor {
     }
 
     public void sendFile(MouseEvent event) throws IOException {
-        // if the user has selected files to send then send them
-        if (fileList.size() > 0) {
-            // new fileinputstream and get the absolute path of the file
-            FileInputStream inputStream = new FileInputStream(fileList.get(0).getCanonicalFile());
-            Socket socket = new Socket("localhost", 5000);
+        byte[] multicastMessage = "DISCOVER_SERVER_REQUEST".getBytes();
+        MulticastSocket multiSocket = new MulticastSocket();
 
-            DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
+        InetAddress group = InetAddress.getByName("224.0.0.1");
 
-            String fileName = fileList.get(0).getName();
-            byte[] fileBytes = fileName.getBytes();
+        multiSocket.joinGroup(group);
 
-            byte[] fileContentBytes = new byte[(int) fileList.get(0).length()];
-            inputStream.read(fileContentBytes);
+        DatagramPacket packet = new DatagramPacket(multicastMessage, multicastMessage.length, group, 8888);
 
-            dataOutputStream.writeInt(fileBytes.length);
-            dataOutputStream.write(fileBytes);
+        multiSocket.send(packet);
+        multiSocket.leaveGroup(group);
+        multiSocket.close();
 
-            dataOutputStream.writeInt(fileContentBytes.length);
-            dataOutputStream.write(fileContentBytes);
+        // send the file
+        try(Socket socket = new Socket()){
+            String host = InetAddress.getLocalHost().getHostAddress();
+            int port = 8888;
+            socket.connect(new InetSocketAddress(host, port), 5000);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+            objectOutputStream.flush();
+            objectOutputStream.writeObject(fileList);
+            objectOutputStream.flush();
+            objectOutputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -215,33 +226,12 @@ public class FileDistributor {
         stage.show();
     }
 
-    public void handleFileUploadPlus(MouseEvent event) throws UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+    public void handleFileUploadPlus(ActionEvent event) throws UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-        Platform.runLater(() -> {
-            JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setDialogTitle("Select file(s)/folder(s) to upload");
-            fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-            // allow multiple files to be selected
-            fileChooser.setMultiSelectionEnabled(true);
-            // only let a limited number of files be selected
-            fileChooser.setFileHidingEnabled(true);
-            // add the file to the list
-            int returnValue = fileChooser.showOpenDialog(null);
-            if (returnValue == JFileChooser.APPROVE_OPTION) {
-                File selectedFile = fileChooser.getSelectedFile();
-                // just display the file name
-                String fileName = selectedFile.getName();
-                fileList.add(new File(fileName));
-                fileListView.setItems(fileList);
-                // hide the upload button
-                btnUpload.setVisible(false);
-                btnUpload.setDisable(true);
-                uploadIcn.setVisible(false);
-                addBtn.setVisible(true);
-                addBtn.setDisable(false);
-                sendIcon.setVisible(true);
-                sendFilesBtn.setVisible(true);
-            }
-        });
+        try {
+            handleFileUpload(event);
+        } catch (IllegalArgumentException e){
+            System.out.println("Method redirected to handleFileUpload");
+        }
     }
 }
