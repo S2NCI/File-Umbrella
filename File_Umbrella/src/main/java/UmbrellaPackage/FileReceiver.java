@@ -11,6 +11,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.*;
@@ -34,6 +35,11 @@ public class FileReceiver {
     public Button viewIncomingBtn;
     private static DataOutputStream dataOutputStream = null;
     private static DataInputStream dataInputStream = null;
+    private Path filePath;
+
+    public void setFilePath(Path filePath) {
+        this.filePath = filePath;
+    }
 
     private static void sendFile(String path) throws Exception {
         int bytes = 0;
@@ -63,28 +69,41 @@ public class FileReceiver {
     }
 
     public void handleFileReceive(ActionEvent event) throws IOException {
-        FileReceiver server = new FileReceiver();
-        SocketChannel socketChannel = server.createServerSocketChannel();
-        int bufferSize = 1024;
-        Path filePath = Paths.get("C:\\Users\\Downloads\\test.txt");
-        server.readFileFromSocketChannel(socketChannel, filePath, bufferSize);
+        // show file chooser dialog and get the selected file
+        FileChooser fileChooser = new FileChooser();
+        File selectedFile = fileChooser.showSaveDialog(null);
+
+        if (selectedFile != null) {
+            // set the file path to the selected file
+            setFilePath(selectedFile.toPath());
+
+            // create server socket channel and start listening for incoming connections
+            SocketChannel socketChannel = createServerSocketChannel();
+            System.out.println("Waiting for connection...");
+
+            // read the file from the socket channel
+            readFileFromSocketChannel(socketChannel);
+
+            System.out.println("File received successfully");
+        }
     }
 
-    private void readFileFromSocketChannel(SocketChannel socketChannel, Path filePath, int bufferSize) throws IOException {
+
+    private void readFileFromSocketChannel(SocketChannel socketChannel) throws IOException {
         try (FileChannel fileChannel = FileChannel.open(filePath,
                 EnumSet.of(StandardOpenOption.CREATE,
                         StandardOpenOption.TRUNCATE_EXISTING,
-                        StandardOpenOption.WRITE));
-             WritableByteChannel bufferedChannel = Channels.newChannel(new BufferedOutputStream(Channels.newOutputStream(fileChannel), bufferSize))) {
+                        StandardOpenOption.WRITE))) {
 
-            ByteBuffer buffer = ByteBuffer.allocate(bufferSize);
+            ByteBuffer buffer = ByteBuffer.allocate(1024);
             while (socketChannel.read(buffer) > 0) {
                 buffer.flip();
-                bufferedChannel.write(buffer);
+                fileChannel.write(buffer);
                 buffer.clear();
             }
         }
     }
+
 
 
     private SocketChannel createServerSocketChannel() throws IOException {
