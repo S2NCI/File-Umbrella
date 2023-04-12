@@ -4,45 +4,37 @@
  */
 package UmbrellaPackage;
 
+import com.jcraft.jsch.*;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.DragEvent;
-import javafx.scene.input.Dragboard;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.input.TransferMode;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 
 import javax.swing.*;
 import java.io.*;
-import java.net.*;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.SocketChannel;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.EnumSet;
-import java.util.List;
+import java.net.URL;
+import java.util.ResourceBundle;
+import java.util.Vector;
 
 /**
  * @authors Team 19
  * @partialsource https://heptadecane.medium.com/file-transfer-via-java-sockets-e8d4f30703a5
  */
-public class FileDistributor {
+public class FileDistributor implements Initializable {
 
     // JavaFX fields
     @FXML
@@ -55,73 +47,19 @@ public class FileDistributor {
     public Button addBtn;
     @FXML
     public Button downloadSceneBtn;
-    public ListView fileListView;
     @FXML
     public Button btnUpload;
     @FXML
     public FontAwesomeIconView uploadIcn;
-    private ObservableList<File> fileList = FXCollections.observableArrayList();
-    private static DataOutputStream dataOutputStream = null;
-    private static DataInputStream dataInputStream = null;
-    private static final int BUFFER_SIZE = 4096;
+    @FXML
+    public TreeView fileListView;
+    private final ObservableList<File> selectedFiles = FXCollections.observableArrayList();
+    private String FTP_SERVER = "n6dpm7grhgzdg.westeurope.azurecontainer.io";
+    private final int FTP_PORT = 22;
+    private final String FTP_USERNAME = "sftp";
+    private final String FTP_PASSWORD = "teamproject2023";
+    private final String REMOTE_DIRECTORY = "/upload/";
 
-
-    private static void receiveFile(String fileName) throws Exception {
-        int bytes = 0;
-        FileOutputStream fileOutputStream = null;
-        try {
-            fileOutputStream = new FileOutputStream(fileName);
-
-            long size = dataInputStream.readLong();     // read file size
-            byte[] buffer = new byte[4 * 1024];
-            while (size > 0 && (bytes = dataInputStream.read(buffer, 0, (int) Math.min(buffer.length, size))) != -1) {
-                fileOutputStream.write(buffer, 0, bytes);
-                size -= bytes;      // read upto file size
-            }
-        } finally {
-            fileOutputStream.close();
-        }
-    }
-
-
-    public static void sendEnvelope(Envelope e) {
-
-    }
-
-
-    // JavaFX methods to handle events
-    public void handleFileUpload(ActionEvent event) throws UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-        UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-        Platform.runLater(() -> {
-            JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setDialogTitle("Select file(s)/folder(s) to upload");
-            fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-            // just show the file name and not the full path and icon of the file type in the list
-
-            // add a filter to only show files
-            fileChooser.setAcceptAllFileFilterUsed(false);
-            // add the file to the list
-            int returnValue = fileChooser.showOpenDialog(null);
-            if (returnValue == JFileChooser.APPROVE_OPTION) {
-                File selectedFile = fileChooser.getSelectedFile();
-                // just display the file name
-                String fileName = selectedFile.getName();
-                fileList.add(new File(fileName));
-                fileListView.setItems(fileList);
-                // hide the upload button
-                btnUpload.setVisible(false);
-                btnUpload.setDisable(true);
-                uploadIcn.setVisible(false);
-                addBtn.setVisible(true);
-                addBtn.setDisable(false);
-                sendIcon.setVisible(true);
-                sendFilesBtn.setVisible(true);
-            }
-        });
-    }
-
-
-    // opens the settings scene
     public void handleSettingsWindow(MouseEvent event) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/settings-view.fxml"));
@@ -134,94 +72,65 @@ public class FileDistributor {
         }
     }
 
-    //
+    public void sendFilesToSFTP() {
+        try {
+            JSch jsch = new JSch();
+            Session session = jsch.getSession(FTP_USERNAME, FTP_SERVER, FTP_PORT);
+            session.setConfig("StrictHostKeyChecking", "no");
+            session.setPassword(FTP_PASSWORD);
+            session.connect();
 
-    public void handleDragOver(DragEvent dragEvent) {
-        dragEvent.acceptTransferModes(TransferMode.COPY_OR_MOVE);
-        dragEvent.consume();
+            ChannelSftp channel = (ChannelSftp) session.openChannel("sftp");
+            channel.connect();
+
+            // loop through selected files and upload them to SFTP server
+            for (File file : selectedFiles) {
+                String remotePath = REMOTE_DIRECTORY + file.getName();
+                channel.put(file.getAbsolutePath(), remotePath);
+                System.out.println("Uploaded file: " + file.getName() + " to " + remotePath);
+            }
+
+            channel.disconnect();
+            session.disconnect();
+        } catch (JSchException | SftpException e) {
+            e.printStackTrace();
+            // handle exception here
+        }
     }
 
 
-    public void handleDragDrop(DragEvent dragEvent) {
-        List<File> droppedFiles = dragEvent.getDragboard().getFiles();
-        fileListView.setOnDragDropped(event -> {
-            fileList.addAll(droppedFiles);
-            fileListView.setItems(fileList);
-        });
-        dragEvent.setDropCompleted(true);
-        dragEvent.consume();
+    public void handleFileUpload(ActionEvent event) throws UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select File to Send");
 
-        if (!droppedFiles.isEmpty()) {
+        // Show the file chooser dialog and get the selected file
+        File file = fileChooser.showOpenDialog(((Node) event.getSource()).getScene().getWindow());
+
+        if (file != null) {
+            // Create a TreeItem for the selected file
+            TreeItem<File> fileItem = new TreeItem<>(file);
+            // Add the TreeItem to the root node
+            String fileName = file.getName();
+            // get file size and display it in the tree view
+
+            fileItem.setValue(new File(fileName));
+            fileListView.getRoot().getChildren().add(fileItem);
+            selectedFiles.add(file);
+            // auto expand the root node
+            fileListView.getRoot().setExpanded(true);
             btnUpload.setVisible(false);
             btnUpload.setDisable(true);
             uploadIcn.setVisible(false);
-        }
-
-        fileListView.setCellFactory(param -> new ListCell<File>() {
-            private ImageView imageView = new ImageView();
-
-            @Override
-            public void updateItem(File file, boolean empty) {
-                super.updateItem(file, empty);
-                if (empty) {
-                    setText(null);
-                    setGraphic(null);
-                } else {
-                    setText(file.getName());
-                    imageView.setImage(new Image(file.toURI().toString()));
-                    setGraphic(imageView);
-                }
-            }
-        });
-
-        fileListView.setOnDragDropped(event -> {
-            Dragboard drag = event.getDragboard();
-            boolean success = false;
-            if (drag.hasFiles()) {
-                for (File file : drag.getFiles()) {
-                    if (!fileList.contains(file)) {
-                        fileListView.getItems().add(file);
-                    }
-                }
-                success = true;
-            }
-            event.setDropCompleted(success);
-            event.consume();
-        });
-
-
-    }
-
-    public void sendFile(MouseEvent event) throws IOException {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select file(s)/folder(s) to upload");
-        File selectedFile = fileChooser.showOpenDialog(null);
-        if (selectedFile != null) {
-            Path filePath = selectedFile.toPath();
-            FileDistributor client = new FileDistributor();
-            SocketChannel socketChannel = client.createChannel();
-            client.send(socketChannel, filePath);
+            addBtn.setVisible(true);
+            addBtn.setDisable(false);
+            sendIcon.setVisible(true);
+            sendFilesBtn.setVisible(true);
         }
     }
 
-    private void send(SocketChannel socketChannel, Path filePath) throws IOException {
-        try (FileChannel fileChannel = FileChannel.open(filePath, StandardOpenOption.READ)) {
-            ByteBuffer buffer = ByteBuffer.allocate(1024);
-            while (fileChannel.read(buffer) > 0) {
-                buffer.flip();
-                socketChannel.write(buffer);
-                buffer.clear();
-            }
-        }
+    public void sendFile(MouseEvent event) {
+        sendFilesToSFTP();
     }
-
-    private SocketChannel createChannel() throws IOException {
-        SocketChannel socketChannel = SocketChannel.open();
-        SocketAddress socketAddress = new InetSocketAddress("localhost", 9000);
-        socketChannel.connect(socketAddress);
-        return socketChannel;
-    }
-
 
     public void handleDownloadScene(ActionEvent event) throws IOException {
         // open download scene
@@ -232,12 +141,9 @@ public class FileDistributor {
         stage.show();
     }
 
-    public void handleFileUploadPlus(ActionEvent event) throws UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-        UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-        try {
-            handleFileUpload(event);
-        } catch (IllegalArgumentException e) {
-            System.out.println("Method redirected to handleFileUpload");
-        }
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        TreeItem<String> root = new TreeItem<>("Uploaded Files", new ImageView(new Image(getClass().getResourceAsStream("/Folder_Icon.png"))));
+        fileListView.setRoot(root);
     }
 }
