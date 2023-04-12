@@ -23,12 +23,19 @@ import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 
 import javax.swing.*;
 import java.io.*;
 import java.net.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.SocketChannel;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.EnumSet;
 import java.util.List;
 
 /**
@@ -186,44 +193,33 @@ public class FileDistributor {
     }
 
     public void sendFile(MouseEvent event) throws IOException {
-        byte[] multicastMessage = "DISCOVER_SERVER_REQUEST".getBytes();
-
-        InetAddress group = InetAddress.getByName("224.0.0.1");
-
-        try (MulticastSocket multiSocket = new MulticastSocket()) {
-            multiSocket.joinGroup(new InetSocketAddress(group, 8888), NetworkInterface.getByInetAddress(InetAddress.getLocalHost()));
-            DatagramPacket packet = new DatagramPacket(multicastMessage, multicastMessage.length, group, 8888);
-            multiSocket.send(packet);
-
-            multiSocket.leaveGroup(new InetSocketAddress(group, 8888), NetworkInterface.getByInetAddress(InetAddress.getLocalHost()));
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select file(s)/folder(s) to upload");
+        File selectedFile = fileChooser.showOpenDialog(null);
+        if (selectedFile != null) {
+            Path filePath = selectedFile.toPath();
+            FileDistributor client = new FileDistributor();
+            SocketChannel socketChannel = client.createChannel();
+            client.send(socketChannel, filePath);
         }
+    }
 
-
-        // send the file list and file data
-        try (Socket socket = new Socket()) {
-            String host = InetAddress.getLocalHost().getHostAddress();
-            int port = 8888;
-            socket.connect(new InetSocketAddress(host, port), 5000);
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-            objectOutputStream.flush();
-            objectOutputStream.writeObject(fileList);
-            objectOutputStream.flush();
-
-            // send file data
-            for (File file : fileList) {
-                FileInputStream fileInputStream = new FileInputStream(file);
-                byte[] buffer = new byte[1024];
-                int bytesRead;
-                while ((bytesRead = fileInputStream.read(buffer)) != -1) {
-                    socket.getOutputStream().write(buffer, 0, bytesRead);
-                }
-                fileInputStream.close();
+    private void send(SocketChannel socketChannel, Path filePath) throws IOException {
+        try (FileChannel fileChannel = FileChannel.open(filePath, StandardOpenOption.READ)) {
+            ByteBuffer buffer = ByteBuffer.allocate(1024);
+            while (fileChannel.read(buffer) > 0) {
+                buffer.flip();
+                socketChannel.write(buffer);
+                buffer.clear();
             }
-
-            objectOutputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+    }
+
+    private SocketChannel createChannel() throws IOException {
+        SocketChannel socketChannel = SocketChannel.open();
+        SocketAddress socketAddress = new InetSocketAddress("localhost", 9000);
+        socketChannel.connect(socketAddress);
+        return socketChannel;
     }
 
 

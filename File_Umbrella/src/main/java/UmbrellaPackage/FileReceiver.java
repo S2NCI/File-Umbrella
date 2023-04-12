@@ -15,7 +15,12 @@ import javafx.stage.Stage;
 
 import java.io.*;
 import java.net.*;
-import java.util.List;
+import java.nio.ByteBuffer;
+import java.nio.channels.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.EnumSet;
 import java.util.Objects;
 
 /**
@@ -58,38 +63,38 @@ public class FileReceiver {
     }
 
     public void handleFileReceive(ActionEvent event) throws IOException {
-        byte[] receiveBuffer = new byte[1024];
-        InetAddress group = InetAddress.getByName("224.0.0.1");
+        FileReceiver server = new FileReceiver();
+        SocketChannel socketChannel = server.createServerSocketChannel();
+        int bufferSize = 1024;
+        Path filePath = Paths.get("C:\\Users\\Downloads\\test.txt");
+        server.readFileFromSocketChannel(socketChannel, filePath, bufferSize);
+    }
 
-        try (MulticastSocket multicastSocket = new MulticastSocket(new InetSocketAddress(group, 8888))) {
-            multicastSocket.joinGroup(new InetSocketAddress(group, 8888), NetworkInterface.getByInetAddress(InetAddress.getLocalHost()));
-            DatagramPacket receivePacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
-            multicastSocket.receive(receivePacket);
-            multicastSocket.leaveGroup(new InetSocketAddress(group, 8888), NetworkInterface.getByInetAddress(InetAddress.getLocalHost()));
+    private void readFileFromSocketChannel(SocketChannel socketChannel, Path filePath, int bufferSize) throws IOException {
+        try (FileChannel fileChannel = FileChannel.open(filePath,
+                EnumSet.of(StandardOpenOption.CREATE,
+                        StandardOpenOption.TRUNCATE_EXISTING,
+                        StandardOpenOption.WRITE));
+             WritableByteChannel bufferedChannel = Channels.newChannel(new BufferedOutputStream(Channels.newOutputStream(fileChannel), bufferSize))) {
 
-            String message = new String(receivePacket.getData()).trim();
-            InetAddress senderAddress = receivePacket.getAddress();
-            int senderPort = receivePacket.getPort();
-
-            try (Socket socket = new Socket(senderAddress, senderPort)) {
-                ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
-                List<File> fileList = (List<File>) objectInputStream.readObject();
-                objectInputStream.close();
-
-                for (File file : fileList) {
-                    InputStream inputStream = socket.getInputStream();
-                    FileOutputStream fileOutputStream = new FileOutputStream(file);
-                    byte[] buffer = new byte[1024];
-                    int bytesRead;
-                    while ((bytesRead = inputStream.read(buffer)) != -1) {
-                        fileOutputStream.write(buffer, 0, bytesRead);
-                    }
-                    fileOutputStream.close();
-                }
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
+            ByteBuffer buffer = ByteBuffer.allocate(bufferSize);
+            while (socketChannel.read(buffer) > 0) {
+                buffer.flip();
+                bufferedChannel.write(buffer);
+                buffer.clear();
             }
         }
+    }
+
+
+    private SocketChannel createServerSocketChannel() throws IOException {
+        ServerSocketChannel serverSocket = null;
+        SocketChannel client = null;
+        serverSocket = ServerSocketChannel.open();
+        serverSocket.bind(new InetSocketAddress(9000));
+        client = serverSocket.accept();
+        System.out.println("Connection established" + client.getRemoteAddress());
+        return client;
     }
 
 }
