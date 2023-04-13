@@ -4,11 +4,26 @@
  */
 package UmbrellaPackage;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
+import UmbrellaPackage.Main;
+import com.mongodb.BasicDBObject;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import org.bson.Document;
+
+import java.util.UUID;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.attribute.FileTime;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
 
 /**
@@ -28,10 +43,6 @@ public class Folder implements Serializable {
 
     public ArrayList<String> getMembers() {
         return members;
-    }
-
-    public void addMember(String newMember) {
-        members.add(newMember);
     }
 
     public boolean isAutoUpdate() {
@@ -80,7 +91,7 @@ public class Folder implements Serializable {
     
     private void createFolder(String folderName) {
         //method to create a directory folder to store folder items in
-        String documentsPath = userHome + "\\Documents\\File Umbrella\\" + folderName;
+        String documentsPath = userHome + "\\Documents\\File Umbrella\\" + folderName + " - " + id;
         File directory = new File(documentsPath);
     
         if (!directory.exists()) {
@@ -89,8 +100,9 @@ public class Folder implements Serializable {
     }
 
     private void renameFolder(String oldName) {
-        String oldPath = userHome + "\\Documents\\File Umbrella\\" + oldName;
-        String newPath = userHome + "\\Documents\\File Umbrella\\" + folderName;
+        //Folder names follow a "Name-idcode" format so each remains unique
+        String oldPath = userHome + "\\Documents\\File Umbrella\\" + oldName + " - " + id;
+        String newPath = userHome + "\\Documents\\File Umbrella\\" + folderName + " - " + id;
 
         File oldFolder = new File(oldPath);
         File newFolder = new File(newPath);
@@ -103,9 +115,10 @@ public class Folder implements Serializable {
         }
     }
 
-    public void deleteDirectory() {
-        //method to optionally delete the directory when deleting the folder
-        
+    public void deleteFolder() {
+        //method to optionally delete the directory when leaving the folder
+        String folderPath = userHome + "\\Documents\\File Umbrella\\" + folderName + " - " + id;
+        FileUtils.deleteQuietly(new File(folderPath));
     }
 
     //#endregion
@@ -125,20 +138,20 @@ public class Folder implements Serializable {
     public void sendChanges(ArrayList<FileData> changedFiles) {
         //method to send notice of file changes to network members
         Envelope e = new Envelope(id, false, changedFiles);
-        
+        s
         for(String IP : members) {
             //TODO attempt to send this envelope to each member ip through socket
-            //FileDistributor.sendEnvelope(e);
+            FileDistributor.sendEnvelope(e, IP);
         }
     }
     
-    public void recieveFiles() {
-        //method to save recieved files to the directory
+    public void sendFiles() {
+        //method to send files to a specific network member
         
     }
     
-    public void sendFiles(ArrayList<FileData> recievedFiles, String destinationLocation) {
-        //method to send files to a network member
+    public void recieveFiles(ArrayList<FileData> recievedFiles, String destinationLocation) {
+        //method to compare recieved changes with local files
         
     }
 
@@ -152,7 +165,35 @@ public class Folder implements Serializable {
         if(autoShare || true) {//request permission, true is a UI placeholder
             sendChanges(send); 
         } 
-        
+
+        //update list of members
+        try {
+            // establish connection to MongoDB database
+            String connectionString = "mongodb+srv://admin:dbpass@cluster0.jmttrjk.mongodb.net/?retryWrites=true&w=majority";
+            MongoClient mongoClient = Controllers.DBController.createConnection(connectionString);
+            MongoDatabase database = mongoClient.getDatabase("UserConnection");
+            MongoCollection<Document> folderCollection = database.getCollection("FolderCollection");
+
+            BasicDBObject query = new BasicDBObject();
+            query.put("folderId", id);
+            query.put("folderPassword", accessPassword);
+
+            Document result = folderCollection.find(query).first();
+
+            // when folder is found use connection to get IPs with the same id
+            if (result != null) {
+                BasicDBObject query2 = new BasicDBObject();
+                query2.put
+                .put("folderId", id);
+                query2.put("folderPassword", accessPassword);
+
+                Document result = folderCollection.find(query).first();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            Controllers.DBController.closeConnection();
+        }
     }
 
     private ArrayList<FileData> checkForChanges() {
