@@ -4,6 +4,7 @@
  */
 package UmbrellaPackage;
 
+import Controllers.SettingsController;
 import com.jcraft.jsch.*;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.collections.FXCollections;
@@ -15,7 +16,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 // import arrays
-import java.util.Arrays;
+import java.util.*;
 
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -43,9 +44,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Objects;
-import java.util.ResourceBundle;
-import java.util.Vector;
 
 /**
  * @authors Team 19
@@ -72,6 +70,8 @@ public class FileReceiver implements Initializable {
     private final String FTP_USERNAME = "sftp";
     private final String FTP_PASSWORD = "teamproject2023";
     private final String REMOTE_DIRECTORY = "/upload/";
+    private static final String SETTINGS_FILE = "settings.properties";
+    private static final String DEFAULT_DIRECTORY_KEY = "defaultDirectory";
 
     // opens send scene
     public void handleSendScene(ActionEvent event) throws IOException {
@@ -81,6 +81,16 @@ public class FileReceiver implements Initializable {
         Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
         window.setScene(sendScene);
         window.show();
+    }
+
+    private String getDefaultDirectory() {
+        Properties properties = new Properties();
+        try (InputStream inputStream = new FileInputStream(SETTINGS_FILE)) {
+            properties.load(inputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return properties.getProperty(DEFAULT_DIRECTORY_KEY);
     }
 
     public void handleFileReceive(ActionEvent event) throws JSchException, SftpException {
@@ -124,6 +134,7 @@ public class FileReceiver implements Initializable {
 
 
     public void saveToDevice(ActionEvent actionEvent) throws JSchException {
+        SettingsController settingsController = new SettingsController();
         JSch jsch = new JSch();
         Session session = jsch.getSession(FTP_USERNAME, FTP_SERVER, FTP_PORT);
         session.setPassword(FTP_PASSWORD);
@@ -133,34 +144,54 @@ public class FileReceiver implements Initializable {
         session.connect();
         ChannelSftp channel = (ChannelSftp) session.openChannel("sftp");
         channel.connect();
-        DirectoryChooser directoryChooser = new DirectoryChooser();
-        File selectedDirectory = directoryChooser.showDialog(null);
-        if (selectedDirectory != null) {
-            for (String filename : fileNames) {
-                File localFile = new File(selectedDirectory.getPath() + "/" + filename);
+        // Use default directory if set, otherwise prompt user to select one
+        File selectedDirectory = new File(getDefaultDirectory());
+        if (!selectedDirectory.exists()) {
+            DirectoryChooser directoryChooser = new DirectoryChooser();
+            selectedDirectory = directoryChooser.showDialog(null);
+            if (selectedDirectory == null) {
+                return;
+            }
+        }
+        for (String filename : fileNames) {
+            File localFile = new File(selectedDirectory.getPath() + "/" + filename);
+            try {
+                channel.get(REMOTE_DIRECTORY + filename, new FileOutputStream(localFile));
+            } catch (SftpException | FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        // Display alert with file count and option to open directory
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setHeaderText("File Download Complete");
+        alert.setContentText(String.format("%d files have been saved to %s", fileNames.size(), selectedDirectory.getAbsolutePath()));
+        ButtonType openDirectoryButton = new ButtonType("Open Directory", ButtonBar.ButtonData.LEFT);
+        alert.getButtonTypes().setAll(openDirectoryButton, ButtonType.OK);
+        File finalSelectedDirectory = selectedDirectory;
+        alert.showAndWait().ifPresent(buttonType -> {
+            if (buttonType == openDirectoryButton) {
                 try {
-                    channel.get(REMOTE_DIRECTORY + filename, new FileOutputStream(localFile));
-                } catch (SftpException | FileNotFoundException e) {
+                    Desktop.getDesktop().open(finalSelectedDirectory);
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-            // Display alert with file count and option to open directory
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setHeaderText("File Download Complete");
-            alert.setContentText(String.format("%d files have been saved to %s", fileNames.size(), selectedDirectory.getAbsolutePath()));
-            ButtonType openDirectoryButton = new ButtonType("Open Directory", ButtonBar.ButtonData.LEFT);
-            alert.getButtonTypes().setAll(openDirectoryButton, ButtonType.OK);
-            alert.showAndWait().ifPresent(buttonType -> {
-                if (buttonType == openDirectoryButton) {
-                    try {
-                        Desktop.getDesktop().open(selectedDirectory);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
+        });
+    }
+
+    public void handleSettingsWindow(MouseEvent event) {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/settings-view.fxml"));
+            Scene scene = new Scene(root);
+            Stage stage = new Stage();
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
+
+
 
     private TreeItem<Path> createTreeItem(Path path) {
         TreeItem<Path> item = new TreeItem<>(path);

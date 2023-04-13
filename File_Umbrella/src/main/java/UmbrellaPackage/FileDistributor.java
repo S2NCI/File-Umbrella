@@ -87,9 +87,14 @@ public class FileDistributor implements Initializable {
             for (File file : selectedFiles) {
                 String remotePath = REMOTE_DIRECTORY + file.getName();
                 channel.put(file.getAbsolutePath(), remotePath);
-                System.out.println("Uploaded file: " + file.getName() + " to " + remotePath);
+                break;
             }
-
+            // javafx alert to show that files have been sent
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Files Sent");
+            alert.setHeaderText("Upload Successful!");
+            alert.setContentText("Your files have been sent.");
+            alert.showAndWait();
             channel.disconnect();
             session.disconnect();
         } catch (JSchException | SftpException e) {

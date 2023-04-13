@@ -6,12 +6,12 @@ package UmbrellaPackage;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import com.jcraft.jsch.*;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXMLLoader;
 
 import javax.swing.*;
@@ -34,13 +34,14 @@ import java.util.Properties;
 public class Main extends Application {
     private static final String LAST_VIEW = "lastView";
     private TrayIcon trayIcon;
+    @FXML
+    private Button settingsBtn;
     private Properties properties = new Properties();
     private File propertiesFile = new File("app.properties");
 
     @Override
     public void start(Stage stage) throws AWTException, IOException {
         Image fxImage = new Image("FileUmbrellaAppIcon.png");
-        BufferedImage image = SwingFXUtils.fromFXImage(fxImage, null);
 
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/join-view.fxml"));
@@ -79,7 +80,6 @@ public class Main extends Application {
         // if program is minimized to tray, create tray icon
         if (SystemTray.isSupported()) {
             SystemTray tray = SystemTray.getSystemTray();
-            trayIcon = new TrayIcon(image, "File Umbrella");
 
             // creating the popup menu
             PopupMenu popup = new PopupMenu();
@@ -146,9 +146,6 @@ public class Main extends Application {
                     System.exit(0);
                 }
             });
-            trayIcon.setPopupMenu(popup);
-            trayIcon.setImageAutoSize(true);
-            tray.add(trayIcon);
         }
     }
 

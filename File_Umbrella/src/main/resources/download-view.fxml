@@ -126,7 +126,7 @@
          </effect>
       </TextField>
       <FontAwesomeIconView fill="WHITE" glyphName="SEARCH" layoutX="731.0" layoutY="28.0" wrappingWidth="15.350000381469727" />
-      <FontAwesomeIconView id="settings-icon" fill="WHITE" glyphName="COG" layoutX="1053.0" layoutY="30.0" size="18" wrappingWidth="22.300000190734863">
+      <FontAwesomeIconView id="settings-icon" fx:id="settingsBtn" fill="WHITE" glyphName="COG" layoutX="1053.0" layoutY="30.0" onMouseReleased="#handleSettingsWindow" size="18" wrappingWidth="22.300000190734863">
          <cursor>
             <Cursor fx:constant="HAND" />
          </cursor>

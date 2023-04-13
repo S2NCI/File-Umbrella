@@ -12,7 +12,6 @@ module UmbrellaPackage {
     requires java.desktop;
     requires mongo.java.driver;
     requires de.jensd.fx.glyphs.fontawesome;
-    requires javafx.swing;
     requires java.prefs;
     requires jsch;
     requires org.apache.commons.net;

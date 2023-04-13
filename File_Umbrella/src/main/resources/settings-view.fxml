@@ -31,7 +31,7 @@
                   </Button>
                </children>
             </AnchorPane>
-            <Button fx:id="defaultDirBtn" layoutX="645.0" layoutY="60.0" mnemonicParsing="false" prefHeight="10.0" prefWidth="94.0" style="-fx-background-color: #6ea5ff;" text="Browse" textFill="WHITE">
+            <Button fx:id="defaultDirBtn" layoutX="645.0" layoutY="60.0" mnemonicParsing="false" onAction="#handleDefaultDirectory" prefHeight="10.0" prefWidth="94.0" style="-fx-background-color: #6ea5ff;" text="Browse" textFill="WHITE">
                <font>
                   <Font name="MS Outlook" size="14.0" />
                </font>
@@ -39,7 +39,7 @@
                   <Cursor fx:constant="HAND" />
                </cursor>
             </Button>
-            <TextField layoutX="225.0" layoutY="60.0" prefHeight="27.0" prefWidth="399.0" />
+            <TextField fx:id="defaultDirectoryTextField" layoutX="225.0" layoutY="60.0" prefHeight="27.0" prefWidth="399.0" />
             <Label layoutX="225.0" layoutY="22.0" prefHeight="27.0" prefWidth="339.0" text="Default download directory:" textFill="#6ea5ff">
                <font>
                   <Font name="MS Outlook" size="22.0" />
@@ -51,6 +51,14 @@
                </font>
             </Label>
             <JFXToggleButton fx:id="toggleSync" layoutX="170.0" layoutY="137.0" prefHeight="58.0" prefWidth="217.0" text="Sync is off" toggleColor="WHITE" toggleLineColor="#6ea5ff" unToggleColor="WHITE" unToggleLineColor="WHITE" />
+            <Button fx:id="saveSettingsBtn" layoutX="425.0" layoutY="412.0" mnemonicParsing="false" onAction="#saveSettings" prefHeight="10.0" prefWidth="94.0" style="-fx-background-color: #6ea5ff;" text="Save" textFill="WHITE">
+               <font>
+                  <Font name="MS Outlook" size="14.0" />
+               </font>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Button>
          </children>
       </AnchorPane>
    </children>
