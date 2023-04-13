@@ -13,9 +13,9 @@
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.JoinCreateFolderController">
     <left>
-        <AnchorPane prefHeight="400.0" prefWidth="166.0" style="-fx-background-color: #6ea5ff;" BorderPane.alignment="CENTER">
+        <AnchorPane prefHeight="400.0" prefWidth="175.0" style="-fx-background-color: #6ea5ff;" BorderPane.alignment="CENTER">
          <children>
-            <ImageView fitHeight="150.0" fitWidth="185.0" layoutX="8.0" layoutY="114.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fitHeight="150.0" fitWidth="185.0" layoutX="13.0" layoutY="125.0" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@File_Umbrella_Icon_Base.png" />
                </image>

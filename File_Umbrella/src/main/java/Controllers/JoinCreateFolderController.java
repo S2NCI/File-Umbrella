@@ -3,6 +3,7 @@ package Controllers;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import UmbrellaPackage.Main;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
@@ -18,7 +19,6 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import org.bson.Document;
 
 import java.io.IOException;
@@ -27,6 +27,7 @@ import java.util.UUID;
 public class JoinCreateFolderController {
 
     // JavaFX fields
+    Main m = new Main();
     @FXML
     public TextField folderIDTF;
     @FXML
@@ -46,43 +47,52 @@ public class JoinCreateFolderController {
     private void handleAccountAuth(ActionEvent event) {
 
         String folderId = folderIDTF.getText();
-        String folderPass = folderPassTF.getText();
+        String folderPassword = folderPassTF.getText();
 
-        // establish connection to MongoDB database
-        String connectionString = "mongodb+srv://admin:dbpass@cluster0.jmttrjk.mongodb.net/?retryWrites=true&w=majority";
-        MongoClient mongoClient = DBController.createConnection(connectionString);
-        MongoDatabase database = mongoClient.getDatabase("UserConnection");
-        MongoCollection<Document> folderCollection = database.getCollection("FolderCollection");
+        try {
+            // establish connection to MongoDB database
+            String connectionString = "mongodb+srv://admin:dbpass@cluster0.jmttrjk.mongodb.net/?retryWrites=true&w=majority";
+            MongoClient mongoClient = DBController.createConnection(connectionString);
+            MongoDatabase database = mongoClient.getDatabase("UserConnection");
+            MongoCollection<Document> folderCollection = database.getCollection("FolderCollection");
 
-        BasicDBObject query = new BasicDBObject();
-        query.put("folderId", folderId);
-        query.put("folderPassword", folderPass);
+            BasicDBObject query = new BasicDBObject();
+            query.put("folderId", folderId);
+            query.put("folderPassword", folderPassword);
 
-        Document result = folderCollection.find(query).first();
+            Document result = folderCollection.find(query).first();
 
-        // open send scene when folder ID and password match
-        if (result != null) {
-            try {
-                Parent root = FXMLLoader.load(getClass().getResource("/send-view.fxml"));
-                Scene scene = new Scene(root);
-                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                stage.setScene(scene);
-                stage.show();
-            } catch (IOException e) {
-                e.printStackTrace();
+
+            // open send scene when folder ID and password match
+            if (result != null) {
+                try {
+                    Thread.sleep(3000);
+                    Parent root = FXMLLoader.load(getClass().getResource("/send-view.fxml"));
+                    Scene scene = new Scene(root);
+                    Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                    stage.setScene(scene);
+                    stage.show();
+                } catch (IOException | InterruptedException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText("Folder ID or Password is incorrect");
+                alert.setContentText("Please try again");
+                alert.showAndWait();
             }
-        } else {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Folder ID or Password is incorrect");
-            alert.setContentText("Please try again");
-            alert.showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DBController.closeConnection();
         }
     }
 
     // open create folder scene when create folder button is clicked
     @FXML
     private void handleCreateFolder(MouseEvent event) throws IOException {
+        m.storeLastView("createfolder-view.fxml");
         Parent root = FXMLLoader.load(getClass().getResource("/createfolder-view.fxml"));
         Scene scene = new Scene(root);
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
@@ -93,6 +103,7 @@ public class JoinCreateFolderController {
     // cancel folder creation
     @FXML
     private void cancelCreate(MouseEvent event) throws IOException {
+        m.storeLastView("join-view.fxml");
         Parent root = FXMLLoader.load(getClass().getResource("/join-view.fxml"));
         Scene scene = new Scene(root);
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
