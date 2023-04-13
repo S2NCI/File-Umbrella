@@ -17,6 +17,9 @@ module UmbrellaPackage {
     requires jsch;
     requires org.apache.commons.net;
     requires java.dotenv;
+    requires com.jfoenix;
+    requires org.apache.tika.core;
+    requires org.apache.commons.io;
 
     opens Controllers to javafx.fxml;
     exports UmbrellaPackage;

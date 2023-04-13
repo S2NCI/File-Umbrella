@@ -12,12 +12,13 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.web.WebView?>
 
 <AnchorPane prefHeight="532.0" prefWidth="1095.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="UmbrellaPackage.FileReceiver">
    <children>
       <AnchorPane layoutX="98.0" layoutY="46.0" prefHeight="470.0" prefWidth="992.0" style="-fx-background-color: #ffffff;">
          <children>
-            <TreeView fx:id="listDownloads" layoutX="116.0" prefHeight="490.0" prefWidth="878.0" />
+            <TreeView fx:id="listDownloads" layoutX="116.0" onMouseReleased="#handlePreview" prefHeight="490.0" prefWidth="878.0" />
             <FontAwesomeIconView fx:id="downloadFolderIcon" fill="#6ea5ff" glyphName="FOLDER" layoutX="496.0" layoutY="210.0" size="56" />
             <Button fx:id="viewIncomingBtn" layoutX="362.0" layoutY="244.0" mnemonicParsing="false" onAction="#handleFileReceive" prefHeight="39.0" prefWidth="320.0" style="-fx-background-color: #6ea5ff;" text="View your incoming files" textFill="WHITE">
                <font>
@@ -113,6 +114,7 @@
                   </Button>
                </children>
             </HBox>
+            <WebView fx:id="filePreview" layoutX="116.0" prefHeight="493.0" prefWidth="878.0" visible="false" />
          </children></AnchorPane>
       <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#6ea5ff" height="52.0" layoutX="-8.0" layoutY="-6.0" stroke="TRANSPARENT" strokeType="INSIDE" width="1102.0" />
       <TextField layoutX="434.0" layoutY="9.0" opacity="0.73" prefHeight="30.0" prefWidth="320.0" promptText="Search" style="-fx-background-color: #6ea5ff; -fx-border-radius: 10px; -fx-border-color: #ffffff; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #ffffff;">

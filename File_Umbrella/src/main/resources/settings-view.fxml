@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.jfoenix.controls.JFXToggleButton?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -28,7 +31,7 @@
                   </Button>
                </children>
             </AnchorPane>
-            <Button fx:id="btnUpload" layoutX="332.0" layoutY="35.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="320.0" style="-fx-background-color: #6ea5ff;" text="Browse" textFill="WHITE">
+            <Button fx:id="defaultDirBtn" layoutX="645.0" layoutY="60.0" mnemonicParsing="false" prefHeight="10.0" prefWidth="94.0" style="-fx-background-color: #6ea5ff;" text="Browse" textFill="WHITE">
                <font>
                   <Font name="MS Outlook" size="14.0" />
                </font>
@@ -36,6 +39,18 @@
                   <Cursor fx:constant="HAND" />
                </cursor>
             </Button>
+            <TextField layoutX="225.0" layoutY="60.0" prefHeight="27.0" prefWidth="399.0" />
+            <Label layoutX="225.0" layoutY="22.0" prefHeight="27.0" prefWidth="339.0" text="Default download directory:" textFill="#6ea5ff">
+               <font>
+                  <Font name="MS Outlook" size="22.0" />
+               </font>
+            </Label>
+            <Label layoutX="225.0" layoutY="110.0" prefHeight="27.0" prefWidth="339.0" text="Automatically sync folders:" textFill="#6ea5ff">
+               <font>
+                  <Font name="MS Outlook" size="22.0" />
+               </font>
+            </Label>
+            <JFXToggleButton fx:id="toggleSync" layoutX="170.0" layoutY="137.0" prefHeight="58.0" prefWidth="217.0" text="Sync is off" toggleColor="WHITE" toggleLineColor="#6ea5ff" unToggleColor="WHITE" unToggleLineColor="WHITE" />
          </children>
       </AnchorPane>
    </children>
