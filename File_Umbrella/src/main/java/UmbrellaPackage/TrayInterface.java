@@ -27,7 +27,7 @@ public class TrayInterface {
         
         // Create a usable icon from the image file
         try {
-            File pathToFile = new File("Assets/File_Umbrella_Icon_Base.png");
+            File pathToFile = new File("src\\main\\resources\\File_Umbrella_Icon_Base.png");
             iconImage = ImageIO.read(pathToFile);
         } catch (Exception e) {
             e.printStackTrace();
@@ -44,7 +44,7 @@ public class TrayInterface {
         trayIcon.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 if(e.getButton() == MouseEvent.BUTTON1) {
-                    // open jframe here
+                    // TODO Main.launch(); //reopen the homepage ui section
                 }
                 if(e.getButton() == MouseEvent.BUTTON3) {
                     frame.add(popup);
@@ -64,18 +64,20 @@ public class TrayInterface {
     protected static PopupMenu createPopupMenu() {
         final PopupMenu popup = new PopupMenu();
         MenuItem header = new MenuItem("File Umbrella");
+        MenuItem folderItem = new MenuItem("Folders");
         MenuItem creditItem = new MenuItem("Acknowlegments");
         MenuItem exitItem = new MenuItem("Exit");
         // Add components to pop-up menu
         popup.add(header);
         popup.addSeparator();
+        popup.add(folderItem);
         popup.add(creditItem);
         popup.add(exitItem);
         
         //add action listeners for clicking the popup items
-        header.addActionListener(new ActionListener() {
+        folderItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                // open jframe
+                // open directory
             }
         });
         creditItem.addActionListener(new ActionListener() {

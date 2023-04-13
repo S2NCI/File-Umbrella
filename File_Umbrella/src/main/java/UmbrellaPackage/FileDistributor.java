@@ -37,7 +37,7 @@ public class FileDistributor {
         } catch (Exception e){
             e.printStackTrace();
         }
-    }*/
+    }
 
     private static void receiveFile(String fileName) throws Exception{
         int bytes = 0;
@@ -58,5 +58,5 @@ public class FileDistributor {
     
     public static void sendEnvelope(Envelope e) {
         
-    }
+    }*/
 }

@@ -10,11 +10,11 @@ import java.util.ArrayList;
  * @authors Team 19
  */
 public class Envelope {
-    private int id;
+    private String id;
     private ArrayList<FileData> sentFiles = new ArrayList<>();
     private boolean request;
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
@@ -30,7 +30,7 @@ public class Envelope {
         return request;
     }
 
-    public Envelope(int id, boolean isRequest, ArrayList<FileData> sentFiles) {
+    public Envelope(String id, boolean isRequest, ArrayList<FileData> sentFiles) {
         this.id = id;
         this.request = isRequest;
         this.sentFiles = sentFiles;

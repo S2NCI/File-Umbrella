@@ -32,7 +32,7 @@ public class FileReciever {
         }catch (Exception e){
             e.printStackTrace();
         }
-    }*/
+    }
 
     private static void sendFile(String path) throws Exception{
         int bytes = 0;
@@ -48,5 +48,5 @@ public class FileReciever {
             dataOutputStream.flush();
         }
         fileInputStream.close();
-    }
+    }*/
 }

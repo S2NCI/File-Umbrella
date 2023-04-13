@@ -6,6 +6,7 @@ package UmbrellaPackage;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.attribute.FileTime;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.io.File;
@@ -15,10 +16,12 @@ import java.io.File;
  */
 
 public class Folder implements Serializable {
-    private File directory;
+    private String folderName;
     private String id;
     private String accessPassword;
-    private ArrayList<String> members = new ArrayList<>();
+    private FileTime lastSync;
+    private ArrayList<String> members;
+    private String userHome = System.getProperty("user.home");
     private ArrayList<FileData> savedFiles = new ArrayList<>();
     private boolean autoUpdate; //if true skip 
     private boolean autoShare;
@@ -48,54 +51,66 @@ public class Folder implements Serializable {
     }
 
     public String getFolderName() {
-        return directory.getName();
+        return this.folderName;
+    }
+
+    public void setFolderName(String folderName) {
+        String oldName = this.folderName;
+        this.folderName = folderName;
+        renameFolder(oldName);
     }
 
     public String getID() {
         return id;
     }
 
-    public Folder(File directory, String id, String accessPassword, boolean autoUpdate, boolean autoShare) {
-        this.directory = directory;
+    public Folder(String folderName, String id, String accessPassword, boolean autoUpdate, boolean autoShare) {
+        //"folder" opened on program startup
+        this.folderName = folderName;
         this.id = id;
         this.accessPassword = accessPassword;
         this.autoUpdate = autoUpdate;
         this.autoShare = autoShare;
-        createFolder();
+        createFolder(folderName);
+        //update contents
+        checkIn();
     }
     
+    //#region directory
     
-    private void createFolder() {
-        //method to create a directory folder to read files from
-        //TODO: create folder
-
-        //section to check if directory doesn't yet exist
-
-        //section to create directory if it doesn't using File datatype
-
-
+    private void createFolder(String folderName) {
+        //method to create a directory folder to store folder items in
+        String documentsPath = userHome + "\\Documents\\File Umbrella\\" + folderName;
+        File directory = new File(documentsPath);
+    
+        if (!directory.exists()) {
+            directory.mkdir();
+        }
     }
-    
-    private void placeINI() {
-        //method to place a desktop.ini file into the local directory
-        
+
+    private void renameFolder(String oldName) {
+        String oldPath = userHome + "\\Documents\\File Umbrella\\" + oldName;
+        String newPath = userHome + "\\Documents\\File Umbrella\\" + folderName;
+
+        File oldFolder = new File(oldPath);
+        File newFolder = new File(newPath);
+
+        if (oldFolder.exists()) {
+            oldFolder.renameTo(newFolder);
+        } else {
+            //if no folder to rename then create said folder
+            createFolder(folderName);
+        }
     }
-    
-    public void deleteFolder() {
+
+    public void deleteDirectory() {
         //method to optionally delete the directory when deleting the folder
         
     }
+
+    //#endregion
+
     
-    public void checkIn() throws IOException {
-        //method to refresh folder data in general
-        
-        //check for any folder changes while application was closed
-        ArrayList<FileData> send = checkForChanges();
-        if(autoShare || true) {//request permission, true is a UI placeholder
-            sendChanges(send); 
-        } 
-        
-    }
     
     public void requestFiles(ArrayList<FileData> recievedFiles, String sourceLocation) {
         //method to request files from a specific network member
@@ -113,7 +128,7 @@ public class Folder implements Serializable {
         
         for(String IP : members) {
             //TODO attempt to send this envelope to each member ip through socket
-            FileDistributor.sendEnvelope(e);
+            //FileDistributor.sendEnvelope(e);
         }
     }
     
@@ -126,9 +141,25 @@ public class Folder implements Serializable {
         //method to send files to a network member
         
     }
-    
-    private ArrayList<FileData> checkForChanges() throws IOException {
+
+    //#region Syncing and Comparitors
+
+    public void checkIn() {
+        //method to refresh folder data in general
+        
+        //check for any file changes while application was closed
+        ArrayList<FileData> send = checkForChanges();
+        if(autoShare || true) {//request permission, true is a UI placeholder
+            sendChanges(send); 
+        } 
+        
+    }
+
+    private ArrayList<FileData> checkForChanges() {
         //method to check for changes in the folder to send to other devices and to internally log
+        
+        String path = userHome + "\\Documents\\FileUmbrella\\" + folderName;
+        File directory = new File(path);
         File[] directoryFiles = directory.listFiles();
         ArrayList<FileData> distributeFiles = new ArrayList<>();
         
@@ -140,7 +171,12 @@ public class Folder implements Serializable {
                     if(file.getName().matches(local.getName())) {
                         //index previous time and update before comparing
                         existingTime = local.getLocalDate();
-                        local.updateTime(directory);
+                        try {
+                            local.updateTime(directory);
+                        } catch (IOException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
                         updatedTime = local.getLocalDate();
 
                         //if the updated time is after 
@@ -155,7 +191,12 @@ public class Folder implements Serializable {
             }
             //if the file doesn't exist in record create the record and distribute
             FileData f = new FileData(file.getName());
-            f.updateTime(directory);
+            try {
+                f.updateTime(directory);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
             savedFiles.add(f);
             distributeFiles.add(f);
         }
@@ -185,4 +226,6 @@ public class Folder implements Serializable {
         
         return requestFiles;
     }
+
+    //#endregion
 }
