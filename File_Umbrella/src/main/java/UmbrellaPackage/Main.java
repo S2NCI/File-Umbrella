@@ -1,7 +1,7 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+* Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+* Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+*/
 package UmbrellaPackage;
 
 import javafx.application.Application;
@@ -27,10 +27,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.prefs.Preferences;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-
-import java.io.File;
-import java.io.FileOutputStream;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -45,14 +41,16 @@ import java.util.ArrayList;
 import java.util.Properties;
 
 /**
- * @author Team 19
- */
+* @author Team 19
+*/
 
 public class Main extends Application {
 
+    private static TrayIcon trayIcon;
     private static ArrayList<Folder> folders;
     private static String folderPath = System.getProperty("user.home") + "\\Documents\\File Umbrella";
     private static final String LAST_VIEW = "lastView";
+
     @FXML
     private Button settingsBtn;
     private Properties properties = new Properties();
@@ -60,7 +58,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws AWTException, IOException {
-        Image fxImage = new Image("FileUmbrellaAppIcon.png");
+        //Image fxImage = new Image("File_Umbrella_App_Base.png");
 
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/join-view.fxml"));
@@ -85,6 +83,8 @@ public class Main extends Application {
         stage.setOnCloseRequest(event -> {
             event.consume();
             finalStage.hide();
+            // saving folder data
+            saveData();
             // saving the last view to the properties file
             properties.setProperty("lastView", viewName.get());
             try {
@@ -174,11 +174,6 @@ public class Main extends Application {
         Thread threadBack = new Thread() {
             public void run() {
                 createDirectory();
-                try {
-                    startTray();
-                } catch (AWTException e) {
-                    e.printStackTrace();
-                }
                 loadData();
                 ChangeMonitor cm = new ChangeMonitor();
             }
@@ -192,7 +187,7 @@ public class Main extends Application {
     public void openEnvelope(Envelope envelope, String sourceIP) {
         String destinationID = envelope.getId();
         boolean request = envelope.isRequest();
-        
+       
         //find matching folder id
         for(Folder f : folders) {
             if(f.getID() != destinationID) continue;
@@ -239,7 +234,7 @@ public class Main extends Application {
                 }
             });
         });
-    }
+   }
 
     private static void loadData() {
         //load saved folder data
@@ -275,7 +270,7 @@ public class Main extends Application {
             System.out.println(e);
         }
     }
-    
+   
     private static void createDirectory() {
         //method to create a directory folder to manage files from
         File directory = new File(folderPath);
@@ -334,6 +329,11 @@ public class Main extends Application {
         }
     }
 
+    protected void displayNotification(String folderName) throws AWTException {
+        //send notification about folder update
+        trayIcon.displayMessage("Folder Ready to Sync", folderName + " has been updated by another device, click to sync.", TrayIcon.MessageType.NONE);
+    }
+    
     /*private static void placeShortcut() { 
         //method to create a more visible shortcut to the directory folder
         Path folderPath = Path.of(userHome + "\\Documents\\File Umbrella");
@@ -352,7 +352,8 @@ public class Main extends Application {
 
         //maybe if we decide to be 50% more annoying, will force the app into quick access
     }*/
-    
+   
+    /* Depreciated due to FX issues in seperate class
     private static void startTray() throws AWTException {
         TrayInterface TI;
         //create system tray icon and prepare for sync notifications
@@ -366,5 +367,5 @@ public class Main extends Application {
             //File f = new File("C:");//temporary
         
         //TI.displayNotification(folder.getFolderName());
-    }
+    }*/
 }

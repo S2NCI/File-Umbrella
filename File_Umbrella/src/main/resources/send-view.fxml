@@ -70,7 +70,7 @@
          <children>
             <ImageView fitHeight="132.0" fitWidth="120.0" layoutX="48.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@File_Umbrella_Icon_Base_250x250.png" />
+                  <Image url="@File_Umbrella_Icon_Base.png" />
                </image>
             </ImageView>
             <Button fx:id="downloadSceneBtn" layoutX="-2.0" layoutY="152.0" mnemonicParsing="false" onAction="#handleDownloadScene" prefHeight="46.0" prefWidth="217.0" style="-fx-background-color: transparent;" text="    Downloads" textFill="WHITE">

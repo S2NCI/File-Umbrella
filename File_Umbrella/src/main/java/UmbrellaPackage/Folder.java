@@ -174,7 +174,6 @@ public class Folder implements Serializable {
                         try {
                             local.updateTime(directory);
                         } catch (IOException e) {
-                            // TODO Auto-generated catch block
                             e.printStackTrace();
                         }
                         updatedTime = local.getLocalDate();
@@ -194,7 +193,6 @@ public class Folder implements Serializable {
             try {
                 f.updateTime(directory);
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             savedFiles.add(f);
