@@ -3,12 +3,13 @@
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TreeView?>
 <?import javafx.scene.effect.Blend?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
@@ -16,7 +17,7 @@
    <children>
       <AnchorPane layoutX="98.0" layoutY="46.0" style="-fx-background-color: #ffffff;">
          <children>
-            <ListView fx:id="fileListView" fixedCellSize="0.0" layoutX="117.0" onDragDropped="#handleDragDrop" onDragOver="#handleDragOver" prefHeight="475.0" prefWidth="884.0" />
+            <TreeView fx:id="fileListView" layoutX="116.0" prefHeight="475.0" prefWidth="886.0" />
             <FontAwesomeIconView fx:id="uploadIcn" fill="#6ea5ff" glyphName="EJECT" layoutX="490.0" layoutY="211.0" size="56" AnchorPane.bottomAnchor="256.0" AnchorPane.leftAnchor="490.0" AnchorPane.rightAnchor="462.9375" AnchorPane.topAnchor="163.0" />
             <Button fx:id="btnUpload" layoutX="354.0" layoutY="238.0" mnemonicParsing="false" onAction="#handleFileUpload" prefHeight="39.0" prefWidth="320.0" style="-fx-background-color: #6ea5ff;" text="Drag and Drop a File/Folder or Click to Upload..." textFill="WHITE" AnchorPane.bottomAnchor="198.0" AnchorPane.leftAnchor="354.0" AnchorPane.rightAnchor="327.0" AnchorPane.topAnchor="238.0">
                <font>
@@ -26,36 +27,44 @@
                   <Cursor fx:constant="HAND" />
                </cursor>
             </Button>
-            <Button fx:id="addBtn" layoutX="131.0" layoutY="415.0" mnemonicParsing="false" onAction="#handleFileUpload" prefHeight="46.0" prefWidth="48.0" style="-fx-background-color: #6ea5ff; -fx-background-radius: 25;" stylesheets="@custom-styling.css" textFill="WHITE" visible="false">
-               <font>
-                  <Font name="MS Outlook" size="14.0" />
-               </font>
-               <cursor>
-                  <Cursor fx:constant="HAND" />
-               </cursor>
-               <graphic>
-                  <FontAwesomeIconView fx:id="plusIcon" boundsType="VISUAL" fill="WHITE" glyphName="PLUS" layoutX="50.0" layoutY="50.0" onMouseClicked="#handleFileUploadPlus" size="25" x="50.0" y="50.0">
+            <HBox layoutX="126.0" layoutY="414.0" prefHeight="46.0" prefWidth="48.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="140.0">
+               <children>
+                  <Button fx:id="addBtn" mnemonicParsing="false" onAction="#handleFileUpload" prefHeight="46.0" prefWidth="48.0" style="-fx-background-color: #6ea5ff; -fx-background-radius: 25;" textFill="WHITE" visible="false">
+                     <font>
+                        <Font name="MS Outlook" size="14.0" />
+                     </font>
                      <cursor>
                         <Cursor fx:constant="HAND" />
                      </cursor>
-                  </FontAwesomeIconView>
-               </graphic>
-            </Button>
-            <Button fx:id="sendFilesBtn" layoutX="940.0" layoutY="414.0" mnemonicParsing="false" onMouseReleased="#sendFile" prefHeight="46.0" prefWidth="48.0" style="-fx-background-color: #6ea5ff; -fx-background-radius: 25;" stylesheets="@custom-styling.css" textFill="WHITE" visible="false">
-               <font>
-                  <Font name="MS Outlook" size="14.0" />
-               </font>
-               <cursor>
-                  <Cursor fx:constant="HAND" />
-               </cursor>
-               <graphic>
-                  <FontAwesomeIconView fx:id="sendIcon" boundsType="VISUAL" fill="WHITE" glyphName="SEND" layoutX="50.0" layoutY="50.0" onMouseReleased="#sendFile" selectionEnd="0" size="22" text="" translateX="-1.0" x="50.0" y="50.0">
+                     <graphic>
+                        <FontAwesomeIconView fx:id="plusIcon" boundsType="VISUAL" fill="WHITE" glyphName="PLUS" size="25" wrappingWidth="60.442840576171875" x="50.0" y="50.0">
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor>
+                        </FontAwesomeIconView>
+                     </graphic>
+                  </Button>
+               </children>
+            </HBox>
+            <HBox layoutX="940.0" layoutY="414.0" prefHeight="46.0" prefWidth="48.0" AnchorPane.bottomAnchor="20.0" AnchorPane.rightAnchor="20.0">
+               <children>
+                  <Button fx:id="sendFilesBtn" mnemonicParsing="false" onMouseReleased="#sendFile" prefHeight="46.0" prefWidth="48.0" style="-fx-background-color: #6ea5ff; -fx-background-radius: 25;" textFill="WHITE" visible="false">
+                     <font>
+                        <Font name="MS Outlook" size="14.0" />
+                     </font>
                      <cursor>
                         <Cursor fx:constant="HAND" />
                      </cursor>
-                  </FontAwesomeIconView>
-               </graphic>
-            </Button>
+                     <graphic>
+                        <FontAwesomeIconView fx:id="sendIcon" boundsType="VISUAL" fill="WHITE" glyphName="SEND" layoutX="50.0" layoutY="50.0" onMouseReleased="#sendFile" selectionEnd="0" size="22" text="" translateX="-1.0" x="50.0" y="50.0">
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor>
+                        </FontAwesomeIconView>
+                     </graphic>
+                  </Button>
+               </children>
+            </HBox>
          </children></AnchorPane>
       <AnchorPane layoutY="27.0" prefHeight="494.0" prefWidth="215.0" style="-fx-background-color: #6ea5ff;">
          <children>

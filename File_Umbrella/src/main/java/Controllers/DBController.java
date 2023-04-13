@@ -8,4 +8,8 @@ public class DBController {
     public static MongoClient createConnection(String connectionString) {
         return MongoClients.create(connectionString);
     }
+
+    public static String closeConnection() {
+        return "Connection closed";
+    }
 }
