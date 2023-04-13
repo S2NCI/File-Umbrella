@@ -1,6 +1,7 @@
 package Controllers;
 
 import java.net.InetAddress;
+import java.net.URL;
 import java.net.UnknownHostException;
 
 import UmbrellaPackage.Main;
@@ -8,9 +9,15 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -19,12 +26,15 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.util.Duration;
 import org.bson.Document;
 
 import java.io.IOException;
+import java.util.ResourceBundle;
 import java.util.UUID;
 
-public class JoinCreateFolderController {
+public class JoinCreateFolderController implements Initializable {
 
     // JavaFX fields
     Main m = new Main();
@@ -41,10 +51,13 @@ public class JoinCreateFolderController {
     @FXML
     public TextField folderNameTF;
 
-
-    // JavaFX methods to handle events
     @FXML
-    private void handleAccountAuth(ActionEvent event) {
+    public ProgressBar loginProgress;
+    private Timeline timeline;
+    private DoubleProperty progress = new SimpleDoubleProperty(0);
+
+    @FXML
+    private void handleAccountAuth(ActionEvent event) throws IOException {
 
         String folderId = folderIDTF.getText();
         String folderPassword = folderPassTF.getText();
@@ -66,13 +79,13 @@ public class JoinCreateFolderController {
             // open send scene when folder ID and password match
             if (result != null) {
                 try {
-                    Thread.sleep(3000);
+
                     Parent root = FXMLLoader.load(getClass().getResource("/send-view.fxml"));
                     Scene scene = new Scene(root);
                     Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                     stage.setScene(scene);
                     stage.show();
-                } catch (IOException | InterruptedException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             } else {
@@ -88,6 +101,7 @@ public class JoinCreateFolderController {
             DBController.closeConnection();
         }
     }
+
 
     // open create folder scene when create folder button is clicked
     @FXML
@@ -165,4 +179,8 @@ public class JoinCreateFolderController {
         }
     }
 
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+
+    }
 }

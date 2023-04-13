@@ -7,6 +7,9 @@ package UmbrellaPackage;
 import Controllers.SettingsController;
 import com.jcraft.jsch.*;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -21,8 +24,10 @@ import java.util.*;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.util.Duration;
 import org.apache.commons.io.IOUtils;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.web.WebEngine;
@@ -59,10 +64,14 @@ public class FileReceiver implements Initializable {
     @FXML
     public Button refreshFiles;
     @FXML
+    public TextField searchDownloads;
+    @FXML
     public FontAwesomeIconView downloadFolderIcon;
+    private static FileReceiver instance;
+    private Thread syncThread;
     private ObservableList<String> fileNames = FXCollections.observableArrayList();
     public TreeView<Path> listDownloads;
-    private File selectedDirectory;
+    public Timeline autoSyncTimeline;
     private Tika tika = new Tika();
     private int fileCount = 0;
     private String FTP_SERVER = "n6dpm7grhgzdg.westeurope.azurecontainer.io";
@@ -93,7 +102,10 @@ public class FileReceiver implements Initializable {
         return properties.getProperty(DEFAULT_DIRECTORY_KEY);
     }
 
+
+
     public void handleFileReceive(ActionEvent event) throws JSchException, SftpException {
+        SettingsController settingsController = new SettingsController();
         JSch jsch = new JSch();
         Session session = jsch.getSession(FTP_USERNAME, FTP_SERVER, FTP_PORT);
         session.setPassword(FTP_PASSWORD);
@@ -191,6 +203,12 @@ public class FileReceiver implements Initializable {
         }
     }
 
+    public static synchronized FileReceiver getInstance() {
+        if (instance == null) {
+            instance = new FileReceiver();
+        }
+        return instance;
+    }
 
 
     private TreeItem<Path> createTreeItem(Path path) {
@@ -219,7 +237,7 @@ public class FileReceiver implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         TreeItem<Path> root = new TreeItem<>(Paths.get("Received Files"), new ImageView(new Image(getClass().getResourceAsStream("/Folder_Icon.png"))));
         listDownloads.setRoot(root);
-        // create a web view to preview the files
+
     }
 
 

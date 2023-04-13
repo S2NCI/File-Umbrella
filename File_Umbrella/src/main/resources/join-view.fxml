@@ -42,7 +42,7 @@
                         <Font name="MS Outlook" size="18.0" />
                     </font>
                 </Label>
-                <Button fx:id="btnAccLogin" layoutX="163.0" layoutY="259.0" mnemonicParsing="false" onAction="#handleAccountAuth" prefHeight="27.0" prefWidth="125.0" style="-fx-background-color: #6ea5ff;" text="Join Folder" textFill="WHITE">
+                <Button fx:id="btnAccLogin" layoutX="149.0" layoutY="245.0" mnemonicParsing="false" onAction="#handleAccountAuth" prefHeight="27.0" prefWidth="125.0" style="-fx-background-color: #6ea5ff;" text="Join Folder" textFill="WHITE">
                     <font>
                         <Font name="MS Outlook" size="14.0" />
                     </font>
@@ -50,7 +50,7 @@
                         <Cursor fx:constant="HAND" />
                     </cursor>
                 </Button>
-                <Label fx:id="btnCreateFolder" layoutX="182.0" layoutY="319.0" onMouseClicked="#handleCreateFolder" text="Create Folder →" textFill="#6ea5ff">
+                <Label fx:id="btnCreateFolder" layoutX="168.0" layoutY="301.0" onMouseClicked="#handleCreateFolder" text="Create Folder →" textFill="#6ea5ff">
                     <font>
                         <Font name="MS Outlook" size="12.0" />
                     </font>

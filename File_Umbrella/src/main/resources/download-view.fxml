@@ -117,7 +117,7 @@
             <WebView fx:id="filePreview" layoutX="116.0" prefHeight="493.0" prefWidth="878.0" visible="false" />
          </children></AnchorPane>
       <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#6ea5ff" height="52.0" layoutX="-8.0" layoutY="-6.0" stroke="TRANSPARENT" strokeType="INSIDE" width="1102.0" />
-      <TextField layoutX="434.0" layoutY="9.0" opacity="0.73" prefHeight="30.0" prefWidth="320.0" promptText="Search" style="-fx-background-color: #6ea5ff; -fx-border-radius: 10px; -fx-border-color: #ffffff; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #ffffff;">
+      <TextField fx:id="searchDownloads" layoutX="434.0" layoutY="9.0" opacity="0.73" prefHeight="30.0" prefWidth="320.0" promptText="Search" style="-fx-background-color: #6ea5ff; -fx-border-radius: 10px; -fx-border-color: #ffffff; -fx-text-fill: #ffffff; -fx-prompt-text-fill: #ffffff;">
          <font>
             <Font name="Segoe UI" size="14.0" />
          </font>
