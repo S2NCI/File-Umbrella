@@ -69,10 +69,10 @@ public class FileReceiver implements Initializable {
     private final int FTP_PORT = 22;
     private final String FTP_USERNAME = "sftp";
     private final String FTP_PASSWORD = "teamproject2023";
-    private final String REMOTE_DIRECTORY = "/upload/";
     private static final String SETTINGS_FILE = "settings.properties";
     private static final String DEFAULT_DIRECTORY_KEY = "defaultDirectory";
-
+    private String folderIdSend;
+    private final String REMOTE_DIRECTORY = "/upload/";
     // opens send scene
     public void handleSendScene(ActionEvent event) throws IOException {
         // open send scene
@@ -93,7 +93,11 @@ public class FileReceiver implements Initializable {
         return properties.getProperty(DEFAULT_DIRECTORY_KEY);
     }
 
-    public void handleFileReceive(ActionEvent event) throws JSchException, SftpException {
+    public void handleFileReceive(ActionEvent event) throws JSchException, SftpException, IOException {
+        // get folder ID from folderID.txt
+        File folderID = new File("folderID.txt");
+        Scanner scanner = new Scanner(folderID);
+        folderIdSend = scanner.nextLine();
         JSch jsch = new JSch();
         Session session = jsch.getSession(FTP_USERNAME, FTP_SERVER, FTP_PORT);
         session.setPassword(FTP_PASSWORD);
@@ -103,8 +107,11 @@ public class FileReceiver implements Initializable {
         session.connect();
         ChannelSftp channel = (ChannelSftp) session.openChannel("sftp");
         channel.connect();
-        Vector<ChannelSftp.LsEntry> entries = channel.ls(REMOTE_DIRECTORY);
-        System.out.println("Files in remote directory: " + REMOTE_DIRECTORY);
+        // navigate to the remote directory
+        channel.cd(REMOTE_DIRECTORY + folderIdSend);
+        // get the files from the remote directory
+        Vector<ChannelSftp.LsEntry> entries = channel.ls(".");
+        System.out.println("Files in remote directory: " + REMOTE_DIRECTORY + folderIdSend);
         for (ChannelSftp.LsEntry entry : entries) {
             // file count
             fileCount++;
@@ -118,7 +125,7 @@ public class FileReceiver implements Initializable {
             }
             // sync the files from the remote directory
             fileNames.add(entry.getFilename());
-            channel.get(REMOTE_DIRECTORY + entry.getFilename());
+            channel.get(entry.getFilename(), getDefaultDirectory());
             System.out.println(entry.getFilename());
             String filename = entry.getFilename();
             Path filepath = Paths.get(filename); // create a Path object from the filename
@@ -156,7 +163,7 @@ public class FileReceiver implements Initializable {
         for (String filename : fileNames) {
             File localFile = new File(selectedDirectory.getPath() + "/" + filename);
             try {
-                channel.get(REMOTE_DIRECTORY + filename, new FileOutputStream(localFile));
+                channel.get(REMOTE_DIRECTORY + folderIdSend + filename, new FileOutputStream(localFile));
             } catch (SftpException | FileNotFoundException e) {
                 e.printStackTrace();
             }
@@ -223,7 +230,7 @@ public class FileReceiver implements Initializable {
     }
 
 
-    public void syncFiles(ActionEvent actionEvent) throws JSchException, SftpException {
+    public void syncFiles(ActionEvent actionEvent) throws JSchException, SftpException, IOException {
         // clear the tree view
         listDownloads.getRoot().getChildren().clear();
         // call the handleFileReceive method
