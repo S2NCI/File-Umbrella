@@ -164,12 +164,25 @@ public class Main extends Application {
                     });
                 }
             });
+
             exitApp.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     System.exit(0);
                 }
             });
+
+            // create the tray icon
+            java.awt.Image trayImage = Toolkit.getDefaultToolkit().getImage("src\\main\\resources\\File_Umbrella_Icon_Base.png");
+            TrayIcon trayIcon = new TrayIcon(trayImage, "File Umbrella", popup);
+            trayIcon.setImageAutoSize(true);
+
+            // add the tray icon to the system tray
+            try {
+                tray.add(trayIcon);
+            } catch (AWTException e) {
+                System.err.println("TrayIcon could not be added.");
+            }
         }
     }
 
