@@ -211,7 +211,7 @@ public class Folder implements Serializable {
     private ArrayList<FileData> checkForChanges() {
         //method to check for changes in the folder to send to other devices and to internally log
         
-        String path = userHome + "\\Documents\\FileUmbrella\\" + folderName;
+        String path = folderPath + folderName + " - " + id;
         File directory = new File(path);
         File[] directoryFiles = directory.listFiles();
         ArrayList<FileData> distributeFiles = new ArrayList<>();
