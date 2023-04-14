@@ -25,7 +25,10 @@ public class SettingsController implements Initializable {
     public Button saveSettingsBtn;
     @FXML
     public TextField defaultDirectoryTextField;
-    public String defaultDirectoryPath;
+    //file drectory location with default in documents
+    public static Boolean autoShare;
+    public static Boolean autoUpdate;
+    public static String defaultDirectoryPath = System.getProperty("user.home") + "\\Documents\\File Umbrella";
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -38,8 +41,25 @@ public class SettingsController implements Initializable {
         });
         // Load the default directory setting from a file
         loadDefaultDirectory();
+        loadAutoShare();
+        loadAutoUpdate();
     }
 
+
+    
+
+    public void saveSettings(ActionEvent event) {
+        // Save the default directory setting when the user clicks the "Save" button
+        String defaultDirectory = defaultDirectoryTextField.getText();
+        saveDefaultDirectory(defaultDirectory);
+        saveAutoShare(autoShare);
+        saveAutoUpdate(autoUpdate);
+        // Close the settings window
+        Stage stage = (Stage) defaultDirectoryTextField.getScene().getWindow();
+        stage.close();
+    }
+
+    //#region Default Directory
 
     public void handleDefaultDirectory(ActionEvent event) {
         DirectoryChooser directoryChooser = new DirectoryChooser();
@@ -49,15 +69,6 @@ public class SettingsController implements Initializable {
             // Update the default directory text field with the selected directory path
             defaultDirectoryTextField.setText(selectedDirectory.getAbsolutePath());
         }
-    }
-
-    public void saveSettings(ActionEvent event) {
-        // Save the default directory setting when the user clicks the "Save" button
-        String defaultDirectory = defaultDirectoryTextField.getText();
-        saveDefaultDirectory(defaultDirectory);
-        // Close the settings window
-        Stage stage = (Stage) defaultDirectoryTextField.getScene().getWindow();
-        stage.close();
     }
 
     // Load the default directory setting from a file
@@ -73,7 +84,6 @@ public class SettingsController implements Initializable {
         return defaultDirectoryPath;
     }
 
-
     private void saveDefaultDirectory(String defaultDirectory) {
         // Save the default directory setting to a file
         Properties props = new Properties();
@@ -84,5 +94,85 @@ public class SettingsController implements Initializable {
             e.printStackTrace();
         }
     }
+
+    //#endregion
+
+    //#region Auto-Share
+    public void handleAutoShare(ActionEvent event) {
+        //TODO Make this a toggle
+    }
+
+    // Load the default directory setting from a file
+    public Boolean loadAutoShare() {
+        Properties props = new Properties();
+        try (InputStream inputStream = new FileInputStream("settings.properties")) {
+            props.load(inputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String autoShareRaw = props.getProperty("autoShare");
+        //TODO Enable toggle if true
+        if(autoShareRaw.matches("true")) {
+            return true; 
+        } else { 
+            return false; 
+        }
+    }
+
+    private void saveAutoShare(Boolean autoShare) {
+        // Save the default directory setting to a file
+        Properties props = new Properties();
+        if(autoShare) {
+            props.setProperty("autoShare", "true");
+        } else { 
+            props.setProperty("autoShare", "false");
+        }
+        try (OutputStream outputStream = new FileOutputStream("settings.properties")) {
+            props.store(outputStream, "Settings");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //#endregion
+
+    
+    //#region Auto-Update
+    public void handleAutoUpdate(ActionEvent event) {
+        //TODO Make this a toggle
+    }
+
+    // Load the default directory setting from a file
+    public Boolean loadAutoUpdate() {
+        Properties props = new Properties();
+        try (InputStream inputStream = new FileInputStream("settings.properties")) {
+            props.load(inputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String autoUpdateRaw = props.getProperty("autoUpdate");
+        //TODO Enable toggle if true
+        if(autoUpdateRaw.matches("true")) {
+            return true; 
+        } else { 
+            return false; 
+        }
+    }
+
+    private void saveAutoUpdate(Boolean autoShare) {
+        // Save the default directory setting to a file
+        Properties props = new Properties();
+        if(autoUpdate) {
+            props.setProperty("autoUpdate", "true");
+        } else { 
+            props.setProperty("autoUpdate", "false");
+        }
+        try (OutputStream outputStream = new FileOutputStream("settings.properties")) {
+            props.store(outputStream, "Settings");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    //#endregion
 
 }

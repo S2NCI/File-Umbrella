@@ -36,10 +36,11 @@ public class Folder implements Serializable {
     private String accessPassword;
     private FileTime lastSync;
     private ArrayList<String> members;
-    private String userHome = System.getProperty("user.home");
     private ArrayList<FileData> savedFiles = new ArrayList<>();
-    private boolean autoUpdate; //if true skip 
-    private boolean autoShare;
+
+    private static String folderPath = Controllers.SettingsController.defaultDirectoryPath + "\\";
+    private boolean autoUpdate = Controllers.SettingsController.autoUpdate; //if true skip 
+    private boolean autoShare = Controllers.SettingsController.autoShare; //if true share changes on startup and when files requested
 
     public ArrayList<String> getMembers() {
         return members;
@@ -91,7 +92,7 @@ public class Folder implements Serializable {
     
     private void createFolder(String folderName) {
         //method to create a directory folder to store folder items in
-        String documentsPath = userHome + "\\Documents\\File Umbrella\\" + folderName + " - " + id;
+        String documentsPath = folderPath + folderName + " - " + id;
         File directory = new File(documentsPath);
     
         if (!directory.exists()) {
@@ -101,8 +102,8 @@ public class Folder implements Serializable {
 
     private void renameFolder(String oldName) {
         //Folder names follow a "Name-idcode" format so each remains unique
-        String oldPath = userHome + "\\Documents\\File Umbrella\\" + oldName + " - " + id;
-        String newPath = userHome + "\\Documents\\File Umbrella\\" + folderName + " - " + id;
+        String oldPath = folderPath + oldName + " - " + id;
+        String newPath = folderPath + folderName + " - " + id;
 
         File oldFolder = new File(oldPath);
         File newFolder = new File(newPath);
@@ -117,8 +118,8 @@ public class Folder implements Serializable {
 
     public void deleteFolder() {
         //method to optionally delete the directory when leaving the folder
-        String folderPath = userHome + "\\Documents\\File Umbrella\\" + folderName + " - " + id;
-        FileUtils.deleteQuietly(new File(folderPath));
+        String folderLocation = folderPath + folderName + " - " + id;
+        FileUtils.deleteQuietly(new File(folderLocation));
     }
 
     //#endregion

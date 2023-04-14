@@ -48,7 +48,8 @@ public class Main extends Application {
 
     private static TrayIcon trayIcon;
     private static ArrayList<Folder> folders;
-    private static String folderPath = System.getProperty("user.home") + "\\Documents\\File Umbrella";
+    /*private static String folderPath = System.getProperty("user.home") + "\\Documents\\File Umbrella";*/
+    private static String folderPath = Controllers.SettingsController.defaultDirectoryPath + "\\";
     private static final String LAST_VIEW = "lastView";
 
     @FXML
