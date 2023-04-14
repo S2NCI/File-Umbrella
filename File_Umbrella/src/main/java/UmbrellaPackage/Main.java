@@ -39,7 +39,7 @@ import java.util.ArrayList;
 import java.util.Properties;
 
 /**
-* @author Team 19
+* @authors Team 19
 */
 
 public class Main extends Application {
