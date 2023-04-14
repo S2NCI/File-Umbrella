@@ -51,7 +51,7 @@
                </font>
             </Label>
             <JFXToggleButton fx:id="toggleUpdate" layoutX="200.0" layoutY="137.0" prefHeight="58.0" prefWidth="217.0" text="Downloading is Disabled" toggleColor="WHITE" toggleLineColor="#6ea5ff" unToggleColor="WHITE" unToggleLineColor="WHITE" />
-            <JFXToggleButton fx:id="toggleShare" layoutX="200.0" layoutY="167.0" prefHeight="58.0" prefWidth="217.0" text="Uploading is Disabled" toggleColor="WHITE" toggleLineColor="#6ea5ff" unToggleColor="WHITE" unToggleLineColor="WHITE" />
+            <JFXToggleButton fx:id="toggleShare" layoutX="193.0" layoutY="167.0" prefHeight="58.0" prefWidth="217.0" text="Uploading is Disabled" toggleColor="WHITE" toggleLineColor="#6ea5ff" unToggleColor="WHITE" unToggleLineColor="WHITE" />
             <Button fx:id="saveSettingsBtn" layoutX="425.0" layoutY="412.0" mnemonicParsing="false" onAction="#saveSettings" prefHeight="10.0" prefWidth="94.0" style="-fx-background-color: #6ea5ff;" text="Save" textFill="WHITE">
                <font>
                   <Font name="MS Outlook" size="14.0" />
