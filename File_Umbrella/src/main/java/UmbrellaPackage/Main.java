@@ -8,7 +8,6 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
-import com.jcraft.jsch.*;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
@@ -21,7 +20,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 
-import javax.swing.*;
 import java.awt.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.prefs.Preferences;
@@ -48,8 +46,8 @@ public class Main extends Application {
 
     private static TrayIcon trayIcon;
     private static ArrayList<Folder> folders;
-    /*private static String folderPath = System.getProperty("user.home") + "\\Documents\\File Umbrella";*/
-    private static String folderPath = Controllers.SettingsController.defaultDirectoryPath + "\\";
+    //private static String folderPath = System.getProperty("user.home") + "\\Documents\\File Umbrella";
+    private static String folderPath = Controllers.SettingsController.defaultDirectoryPath + "\\File Umbrella";
     private static final String LAST_VIEW = "lastView";
 
     private static Envelope lastRequest, lastChanges;
@@ -223,7 +221,6 @@ public class Main extends Application {
                                     lastRequest = envelope;
                                     lastRequestIP = sourceIP;
                                 } catch (AWTException e) {
-                                    // TODO Auto-generated catch block
                                     e.printStackTrace();
                                 }
                         }
@@ -237,7 +234,6 @@ public class Main extends Application {
                                 lastChanges = envelope;
                                 lastChangesIP = sourceIP;
                             } catch (AWTException e) {
-                                // TODO Auto-generated catch block
                                 e.printStackTrace();
                             }
                         }

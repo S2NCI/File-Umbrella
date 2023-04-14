@@ -4,18 +4,12 @@
  */
 package UmbrellaPackage;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
-import UmbrellaPackage.Main;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
-
-import java.util.UUID;
 
 import java.io.IOException;
 import java.io.Serializable;
