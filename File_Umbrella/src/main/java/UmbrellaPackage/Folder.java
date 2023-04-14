@@ -34,7 +34,7 @@ public class Folder implements Serializable {
 
     private static String folderPath = Controllers.SettingsController.defaultDirectoryPath + "\\";
     private boolean autoUpdate = Controllers.SettingsController.autoUpdate; //if true skip 
-    private boolean autoShare = Controllers.SettingsController.autoShare; //if true share changes on startup and when files requested
+    //private boolean autoShare = Controllers.SettingsController.autoShare; //if true share changes on startup and when files requested
 
     public ArrayList<String> getMembers() {
         return members;
@@ -64,6 +64,10 @@ public class Folder implements Serializable {
 
     public void setLastSync(LocalDateTime lastSync) {
         this.lastSync = lastSync;
+    } 
+    
+    public void resetLastSync() {
+        this.lastSync = LocalDateTime.now();
     }
 
     public Folder(String folderName, String id, String accessPassword) {
@@ -148,8 +152,7 @@ public class Folder implements Serializable {
     public void sendFiles(ArrayList<FileData> requestedFiles, String destinationIP) {
         //method to send files to a specific network member
         
-
-        lastSync = LocalDateTime.now();
+        resetLastSync();
     }
 
     //#endregion
@@ -211,26 +214,32 @@ public class Folder implements Serializable {
         File[] directoryFiles = directory.listFiles();
         ArrayList<FileData> distributeFiles = new ArrayList<>();
         
-        LocalDateTime existingTime, updatedTime;
+        LocalDateTime updatedTime;
+
+        //check for deleted files
+        for(FileData local : savedFiles) {
+            Boolean contains = false; 
+            //check each directory file for it it matches the saved file
+            for(File file : directoryFiles) {
+                if(file.getName().matches(local.getName())) {
+                    contains = true;
+                    break;
+                }
+            }
+            if(!contains) {
+                savedFiles.remove(local);
+            }
+        }
         
         for(File file : directoryFiles) {
             if(file.isDirectory() == false) {
                 for(FileData local : savedFiles) {
                     if(file.getName().matches(local.getName())) {
-                        //index previous time and update before comparing
-                        existingTime = local.getLocalDate();
-                        try {
-                            local.updateTime(directory);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
                         updatedTime = local.getLocalDate();
-
-                        //if the updated time is after 
-                        if(updatedTime.isAfter(existingTime)) {
+                        //if the file update time is after previous sync 
+                        if(updatedTime.isAfter(lastSync)) {
                             distributeFiles.add(local);
                         }
-                        
                         //once file is found in record can move on to next
                         break;
                     }

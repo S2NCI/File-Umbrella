@@ -11,7 +11,6 @@ import java.nio.file.*;
  */
 
 public class ChangeMonitor {
-    private static String userHome = System.getProperty("user.home");
 
     public static void monitorFolder() {
         try {
