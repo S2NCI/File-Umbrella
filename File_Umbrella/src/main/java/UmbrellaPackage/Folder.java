@@ -235,6 +235,11 @@ public class Folder implements Serializable {
             if(file.isDirectory() == false) {
                 for(FileData local : savedFiles) {
                     if(file.getName().matches(local.getName())) {
+                        try {
+                            local.updateTime(file);
+                        } catch (IOException e) {
+                            // TODO Auto-generated catch block
+                        }
                         updatedTime = local.getLocalDate();
                         //if the file update time is after previous sync 
                         if(updatedTime.isAfter(lastSync)) {
