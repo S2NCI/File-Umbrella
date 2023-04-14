@@ -4,11 +4,20 @@
  */
 package UmbrellaPackage;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.MongoDatabase;
+import org.bson.Document;
+
 import java.io.IOException;
 import java.io.Serializable;
-import java.nio.file.attribute.FileTime;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
 
 /**
@@ -19,19 +28,16 @@ public class Folder implements Serializable {
     private String folderName;
     private String id;
     private String accessPassword;
-    private FileTime lastSync;
+    private LocalDateTime lastSync;
     private ArrayList<String> members;
-    private String userHome = System.getProperty("user.home");
     private ArrayList<FileData> savedFiles = new ArrayList<>();
-    private boolean autoUpdate; //if true skip 
-    private boolean autoShare;
+
+    private static String folderPath = Controllers.SettingsController.defaultDirectoryPath + "\\";
+    private boolean autoUpdate = Controllers.SettingsController.autoUpdate; //if true skip 
+    private boolean autoShare = Controllers.SettingsController.autoShare; //if true share changes on startup and when files requested
 
     public ArrayList<String> getMembers() {
         return members;
-    }
-
-    public void addMember(String newMember) {
-        members.add(newMember);
     }
 
     public boolean isAutoUpdate() {
@@ -61,7 +67,15 @@ public class Folder implements Serializable {
     }
 
     public String getID() {
-        return id;
+        return this.id;
+    }
+
+    public LocalDateTime getLastSync() {
+        return this.lastSync;
+    }
+
+    public void setLastSync(LocalDateTime lastSync) {
+        this.lastSync = lastSync;
     }
 
     public Folder(String folderName, String id, String accessPassword, boolean autoUpdate, boolean autoShare) {
@@ -71,6 +85,7 @@ public class Folder implements Serializable {
         this.accessPassword = accessPassword;
         this.autoUpdate = autoUpdate;
         this.autoShare = autoShare;
+        this.lastSync = LocalDateTime.now();
         createFolder(folderName);
         //update contents
         checkIn();
@@ -80,7 +95,7 @@ public class Folder implements Serializable {
     
     private void createFolder(String folderName) {
         //method to create a directory folder to store folder items in
-        String documentsPath = userHome + "\\Documents\\File Umbrella\\" + folderName;
+        String documentsPath = folderPath + folderName + " - " + id;
         File directory = new File(documentsPath);
     
         if (!directory.exists()) {
@@ -89,8 +104,9 @@ public class Folder implements Serializable {
     }
 
     private void renameFolder(String oldName) {
-        String oldPath = userHome + "\\Documents\\File Umbrella\\" + oldName;
-        String newPath = userHome + "\\Documents\\File Umbrella\\" + folderName;
+        //Folder names follow a "Name-idcode" format so each remains unique
+        String oldPath = folderPath + oldName + " - " + id;
+        String newPath = folderPath + folderName + " - " + id;
 
         File oldFolder = new File(oldPath);
         File newFolder = new File(newPath);
@@ -103,44 +119,45 @@ public class Folder implements Serializable {
         }
     }
 
-    public void deleteDirectory() {
-        //method to optionally delete the directory when deleting the folder
-        
+    public void deleteFolder() {
+        //method to optionally delete the directory when leaving the folder
+        String folderLocation = folderPath + folderName + " - " + id;
+        FileUtils.deleteQuietly(new File(folderLocation));
     }
 
     //#endregion
 
-    
-    
-    public void requestFiles(ArrayList<FileData> recievedFiles, String sourceLocation) {
-        //method to request files from a specific network member
-        if(autoUpdate || true) {//request permission, true is a UI placeholder
-            //create envelope of files to be requested
-            Envelope e = new Envelope(id, true, compareFiles(recievedFiles));
-            
-            //TODO: move over socket
-        }
-    }
-    
+    //#region sync process
+
     public void sendChanges(ArrayList<FileData> changedFiles) {
         //method to send notice of file changes to network members
         Envelope e = new Envelope(id, false, changedFiles);
         
         for(String IP : members) {
-            //TODO attempt to send this envelope to each member ip through socket
-            //FileDistributor.sendEnvelope(e);
+            //attempt to send this envelope to each member ip through socket/SFTP
+            FileDistributor.sendEnvelope(e, IP);
         }
     }
     
-    public void recieveFiles() {
-        //method to save recieved files to the directory
-        
+    public void requestFiles(ArrayList<FileData> recievedFiles, String sourceIP) {
+        //method to request files from a specific network member
+        if(autoUpdate || true) {//request permission, true is a UI placeholder
+            //create envelope of files to be requested
+            Envelope e = new Envelope(id, true, compareFiles(recievedFiles));
+            
+            //move over socket/SFTP
+            FileDistributor.sendEnvelope(e, sourceIP);
+        }
     }
     
-    public void sendFiles(ArrayList<FileData> recievedFiles, String destinationLocation) {
-        //method to send files to a network member
+    public void sendFiles(ArrayList<FileData> requestedFiles, String destinationIP) {
+        //method to send files to a specific network member
         
+
+        lastSync = LocalDateTime.now();
     }
+
+    //#endregion
 
     //#region Syncing and Comparitors
 
@@ -149,16 +166,52 @@ public class Folder implements Serializable {
         
         //check for any file changes while application was closed
         ArrayList<FileData> send = checkForChanges();
-        if(autoShare || true) {//request permission, true is a UI placeholder
-            sendChanges(send); 
-        } 
-        
+        sendChanges(send); 
+        updateMembers();
+    }
+
+    private void updateMembers() {
+        //update list of members
+        try {
+            // establish connection to MongoDB database
+            String connectionString = "mongodb+srv://admin:dbpass@cluster0.jmttrjk.mongodb.net/?retryWrites=true&w=majority";
+            MongoClient mongoClient = Controllers.DBController.createConnection(connectionString);
+            MongoDatabase database = mongoClient.getDatabase("UserConnection");
+            MongoCollection<Document> folderCollection = database.getCollection("FolderCollection");
+            MongoCollection<Document> addressCollection = database.getCollection("IPCollection");
+
+            BasicDBObject query = new BasicDBObject();
+            query.put("folderId", id);
+            query.put("folderPassword", accessPassword);
+
+            Document result = folderCollection.find(query).first();
+
+            // Search for documents with the specified key value
+            Document query2 = new Document("folderId", id);
+            MongoCursor<Document> cursor = addressCollection.find(query2).iterator();
+
+            //if folder is found use connection to get destination IPs using that shared identifier
+            if (result != null) {
+                members = new ArrayList<>();
+
+                // Loop through the matching documents and add their "secondary" values to the ArrayList
+                while (cursor.hasNext()) {
+                    Document doc = cursor.next();
+                    String addressValue = doc.getString("memberAddress");
+                    members.add(addressValue);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            Controllers.DBController.closeConnection();
+        }
     }
 
     private ArrayList<FileData> checkForChanges() {
         //method to check for changes in the folder to send to other devices and to internally log
         
-        String path = userHome + "\\Documents\\FileUmbrella\\" + folderName;
+        String path = folderPath + folderName + " - " + id;
         File directory = new File(path);
         File[] directoryFiles = directory.listFiles();
         ArrayList<FileData> distributeFiles = new ArrayList<>();

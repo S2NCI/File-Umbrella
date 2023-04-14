@@ -27,7 +27,6 @@ import javafx.stage.Stage;
 import javax.swing.*;
 import java.io.*;
 import java.net.URL;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Vector;
 
@@ -60,8 +59,6 @@ public class FileDistributor implements Initializable {
     private final String FTP_USERNAME = "sftp";
     private final String FTP_PASSWORD = "teamproject2023";
     private final String REMOTE_DIRECTORY = "/upload/";
-    // get folder id from folderID.txt and convert to string
-    private String folderIdSend;
 
     public void handleSettingsWindow(MouseEvent event) {
         try {
@@ -86,14 +83,12 @@ public class FileDistributor implements Initializable {
             ChannelSftp channel = (ChannelSftp) session.openChannel("sftp");
             channel.connect();
 
-            // send files to seperate folder on SFTP server based on folder id
-            channel.cd(REMOTE_DIRECTORY + folderIdSend);
-
-            // send files to SFTP server
+            // loop through selected files and upload them to SFTP server
             for (File file : selectedFiles) {
-                channel.put(new FileInputStream(file), file.getName());
+                String remotePath = REMOTE_DIRECTORY + file.getName();
+                channel.put(file.getAbsolutePath(), remotePath);
+                break;
             }
-
             // javafx alert to show that files have been sent
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Files Sent");
@@ -105,117 +100,43 @@ public class FileDistributor implements Initializable {
         } catch (JSchException | SftpException e) {
             e.printStackTrace();
             // handle exception here
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 
 
-    public void handleFileUpload(ActionEvent event) throws UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
+    public void handleFileUpload(ActionEvent event) throws UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select File to Send");
 
-            // read folder id from folderID.txt
-            String folderId = "";
-            File details = new File("folderID.txt");
-            BufferedReader br = new BufferedReader(new FileReader(details));
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] parts = line.split(" ");
-                folderId = parts[0];
-                folderIdSend = folderId;
+        // Show the file chooser dialog and get the selected file
+        File file = fileChooser.showOpenDialog(((Node) event.getSource()).getScene().getWindow());
 
+        if (file != null) {
+            // Create a TreeItem for the selected file
+            TreeItem<File> fileItem = new TreeItem<>(file);
+            // Add the TreeItem to the root node
+            String fileName = file.getName();
+            // get file size and display it in the tree view
 
-            try {
-                // Check if the folder exists on the SFTP server
-                JSch jsch = new JSch();
-                Session session = jsch.getSession(FTP_USERNAME, FTP_SERVER, FTP_PORT);
-                session.setConfig("StrictHostKeyChecking", "no");
-                session.setPassword(FTP_PASSWORD);
-                session.connect();
-
-                ChannelSftp channel = (ChannelSftp) session.openChannel("sftp");
-                channel.connect();
-
-                Vector<ChannelSftp.LsEntry> folders = channel.ls(REMOTE_DIRECTORY);
-                boolean folderExists = false;
-                // check folderID.txt for folder id
-                for (ChannelSftp.LsEntry folder : folders) {
-                    if (folder.getFilename().equals(folderId)) {
-                        folderExists = true;
-                        break;
-                    }
-                }
-
-
-
-                // navigate to the folder on the SFTP server
-                channel.cd(REMOTE_DIRECTORY + folderId);
-
-                // allow user to select files to upload
-                FileChooser fileChooser = new FileChooser();
-                fileChooser.setTitle("Select File to Send");
-
-                // Show the file chooser dialog and get the selected file
-                File file = fileChooser.showOpenDialog(((Node) event.getSource()).getScene().getWindow());
-
-                if (file != null) {
-                    // Create a TreeItem for the selected file
-                    TreeItem<File> fileItem = new TreeItem<>(file);
-                    // Add the TreeItem to the root node
-                    String fileName = file.getName();
-                    // get file size and display it in the tree view
-
-                    fileItem.setValue(new File(fileName));
-                    fileListView.getRoot().getChildren().add(fileItem);
-                    selectedFiles.add(file);
-                    // auto expand the root node
-                    fileListView.getRoot().setExpanded(true);
-                    btnUpload.setVisible(false);
-                    btnUpload.setDisable(true);
-                    uploadIcn.setVisible(false);
-                    addBtn.setVisible(true);
-                    addBtn.setDisable(false);
-                    sendIcon.setVisible(true);
-                    sendFilesBtn.setVisible(true);
-
-
-                    if (!folderExists) {
-                        Alert alert = new Alert(Alert.AlertType.ERROR);
-                        alert.setTitle("Folder Not Found");
-                        alert.setHeaderText("The folder you entered could not be found.");
-                        alert.setContentText("Please enter a valid folder ID.");
-                        alert.showAndWait();
-                        return;
-                    }
-
-                    // Check if the target directory matches the selected folder ID
-                    String targetDirectory = channel.pwd();
-                    if (!targetDirectory.endsWith(folderId)) {
-                        Alert alert = new Alert(Alert.AlertType.ERROR);
-                        alert.setTitle("Invalid Folder");
-                        alert.setHeaderText("You can only upload files to the folder you selected.");
-                        alert.setContentText("Please select a different folder or enter a different folder ID.");
-                        alert.showAndWait();
-                        return;
-                    }
-
-                    channel.disconnect();
-                    session.disconnect();
-                }
-
-            } catch (JSchException e) {
-                throw new RuntimeException(e);
-            } catch (SftpException e) {
-                throw new RuntimeException(e);
-            }
+            fileItem.setValue(new File(fileName));
+            fileListView.getRoot().getChildren().add(fileItem);
+            selectedFiles.add(file);
+            // auto expand the root node
+            fileListView.getRoot().setExpanded(true);
+            btnUpload.setVisible(false);
+            btnUpload.setDisable(true);
+            uploadIcn.setVisible(false);
+            addBtn.setVisible(true);
+            addBtn.setDisable(false);
+            sendIcon.setVisible(true);
+            sendFilesBtn.setVisible(true);
         }
     }
 
     /*public static void sendEnvelope(Envelope e) {
         
     }*/
-
+    
     public void sendFile(MouseEvent event) {
         sendFilesToSFTP();
     }

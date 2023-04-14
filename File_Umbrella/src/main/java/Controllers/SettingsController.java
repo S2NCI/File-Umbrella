@@ -18,28 +18,59 @@ import java.util.ResourceBundle;
 public class SettingsController implements Initializable {
 
     @FXML
-    public JFXToggleButton toggleSync;
+    public JFXToggleButton toggleUpdate;
+    @FXML
+    public JFXToggleButton toggleShare;
     @FXML
     public Button defaultDirBtn;
     @FXML
     public Button saveSettingsBtn;
     @FXML
     public TextField defaultDirectoryTextField;
-    public String defaultDirectoryPath;
+    //file drectory location with default in documents
+    public static Boolean autoShare;
+    public static Boolean autoUpdate;
+    public static String defaultDirectoryPath = System.getProperty("user.home") + "\\Documents\\File Umbrella";
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        toggleSync.selectedProperty().addListener((observableValue, aBoolean, t1) -> {
+        toggleUpdate.selectedProperty().addListener((observableValue, aBoolean, t1) -> {
             if (t1) {
-                toggleSync.setText("Sync is on");
+                toggleUpdate.setText("Downloading is Enabled");
+                autoUpdate = true;
             } else {
-                toggleSync.setText("Sync is off");
+                toggleUpdate.setText("Downloading is Disabled");
+                autoUpdate = false;
+            }
+        });
+        toggleShare.selectedProperty().addListener((observableValue, aBoolean, t2) -> {
+            if (t2) {
+                toggleShare.setText("Uploading is Enabled");
+                autoShare = true;
+            } else {
+                toggleShare.setText("Uploading is Disabled");
+                autoShare = false;
             }
         });
         // Load the default directory setting from a file
         loadDefaultDirectory();
+        toggleShare.setSelected(loadAutoShare());
+        toggleUpdate.setSelected(loadAutoUpdate());
     }
 
+
+    
+
+    public void saveSettings(ActionEvent event) {
+        // Save the default directory setting when the user clicks the "Save" button
+        String defaultDirectory = defaultDirectoryTextField.getText();
+        saveSettings(defaultDirectory, autoShare, autoUpdate);
+        // Close the settings window
+        Stage stage = (Stage) defaultDirectoryTextField.getScene().getWindow();
+        stage.close();
+    }
+
+    //#region Default Directory
 
     public void handleDefaultDirectory(ActionEvent event) {
         DirectoryChooser directoryChooser = new DirectoryChooser();
@@ -49,15 +80,6 @@ public class SettingsController implements Initializable {
             // Update the default directory text field with the selected directory path
             defaultDirectoryTextField.setText(selectedDirectory.getAbsolutePath());
         }
-    }
-
-    public void saveSettings(ActionEvent event) {
-        // Save the default directory setting when the user clicks the "Save" button
-        String defaultDirectory = defaultDirectoryTextField.getText();
-        saveDefaultDirectory(defaultDirectory);
-        // Close the settings window
-        Stage stage = (Stage) defaultDirectoryTextField.getScene().getWindow();
-        stage.close();
     }
 
     // Load the default directory setting from a file
@@ -73,16 +95,59 @@ public class SettingsController implements Initializable {
         return defaultDirectoryPath;
     }
 
-
-    private void saveDefaultDirectory(String defaultDirectory) {
-        // Save the default directory setting to a file
+    public Boolean loadAutoShare() {
+        // Load the share setting from a file
         Properties props = new Properties();
-        props.setProperty("defaultDirectory", defaultDirectory);
+        try (InputStream inputStream = new FileInputStream("settings.properties")) {
+            props.load(inputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String autoShareRaw = props.getProperty("autoShare");
+        if(autoShareRaw == null || autoShareRaw.matches("false")) {
+            return false; 
+        } else { 
+            return true; 
+        }
+    }
+
+    public Boolean loadAutoUpdate() {
+        // Load the update setting from a file
+        Properties props = new Properties();
+        try (InputStream inputStream = new FileInputStream("settings.properties")) {
+            props.load(inputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String autoUpdateRaw = props.getProperty("autoUpdate");
+        if(autoUpdateRaw == null || autoUpdateRaw.matches("false")) {
+            return false; 
+        } else { 
+            return true; 
+        }
+    }
+
+    private void saveSettings(String dd, Boolean as, Boolean au) {
+        // Save the settings to a properties file
+        Properties props = new Properties();
+
+        
+        props.setProperty("defaultDirectory", dd);
+        if(as == null || !as) {
+            props.setProperty("autoShare", "false");
+        } else { 
+            props.setProperty("autoShare", "true");
+        }
+        if(au == null || !au) {
+            props.setProperty("autoUpdate", "false");
+        } else { 
+            props.setProperty("autoUpdate", "true");
+        }
+
         try (OutputStream outputStream = new FileOutputStream("settings.properties")) {
             props.store(outputStream, "Settings");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
 }
