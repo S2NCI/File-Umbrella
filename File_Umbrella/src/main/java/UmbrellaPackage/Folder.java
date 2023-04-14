@@ -40,22 +40,6 @@ public class Folder implements Serializable {
         return members;
     }
 
-    public boolean isAutoUpdate() {
-        return autoUpdate;
-    }
-
-    public void setAutoUpdate(boolean autoUpdate) {
-        this.autoUpdate = autoUpdate;
-    }
-
-    public boolean isAutoShare() {
-        return autoShare;
-    }
-
-    public void setAutoShare(boolean autoShare) {
-        this.autoShare = autoShare;
-    }
-
     public String getFolderName() {
         return this.folderName;
     }
@@ -78,13 +62,11 @@ public class Folder implements Serializable {
         this.lastSync = lastSync;
     }
 
-    public Folder(String folderName, String id, String accessPassword, boolean autoUpdate, boolean autoShare) {
+    public Folder(String folderName, String id, String accessPassword) {
         //"folder" opened on program startup
         this.folderName = folderName;
         this.id = id;
         this.accessPassword = accessPassword;
-        this.autoUpdate = autoUpdate;
-        this.autoShare = autoShare;
         this.lastSync = LocalDateTime.now();
         createFolder(folderName);
         //update contents
@@ -135,7 +117,12 @@ public class Folder implements Serializable {
         
         for(String IP : members) {
             //attempt to send this envelope to each member ip through socket/SFTP
-            FileDistributor.sendEnvelope(e, IP);
+            try {
+                SocketSender.sendEnvelope(e, IP);
+            } catch (IOException e1) {
+                // TODO envelope send failure
+                e1.printStackTrace();
+            }
         }
     }
     

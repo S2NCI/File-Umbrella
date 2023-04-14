@@ -289,9 +289,9 @@ public class Main extends Application {
         }
     }
 
-    public static void addFolder(String folderName, String id, String accessPassword, boolean autoUpdate, boolean autoShare) {
+    public static void addFolder(String folderName, String id, String accessPassword) {
         //called when creating or joining a new folder
-        Folder f = new Folder(folderName, id, accessPassword, autoUpdate, autoShare);
+        Folder f = new Folder(folderName, id, accessPassword);
         folders.add(f);
     }
 
