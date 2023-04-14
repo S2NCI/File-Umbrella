@@ -255,11 +255,6 @@ public class Main extends Application {
         folders.add(f);
     }
 
-    public void deleteDirectory() {
-        //method to delete a folder when removed from the sync list
-        
-    }
-
     private static void saveData() {
         //save folder data to file
         try {

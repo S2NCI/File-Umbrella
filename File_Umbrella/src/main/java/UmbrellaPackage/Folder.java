@@ -11,6 +11,7 @@ import UmbrellaPackage.Main;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 
@@ -139,7 +140,7 @@ public class Folder implements Serializable {
     public void sendChanges(ArrayList<FileData> changedFiles) {
         //method to send notice of file changes to network members
         Envelope e = new Envelope(id, false, changedFiles);
-        s
+        
         for(String IP : members) {
             //TODO attempt to send this envelope to each member ip through socket
             FileDistributor.sendEnvelope(e, IP);
@@ -166,7 +167,10 @@ public class Folder implements Serializable {
         if(autoShare || true) {//request permission, true is a UI placeholder
             sendChanges(send); 
         } 
+        updateMembers();
+    }
 
+    private void updateMembers() {
         //update list of members
         try {
             // establish connection to MongoDB database
@@ -174,6 +178,7 @@ public class Folder implements Serializable {
             MongoClient mongoClient = Controllers.DBController.createConnection(connectionString);
             MongoDatabase database = mongoClient.getDatabase("UserConnection");
             MongoCollection<Document> folderCollection = database.getCollection("FolderCollection");
+            MongoCollection<Document> IPCollection = database.getCollection("IPCollection");
 
             BasicDBObject query = new BasicDBObject();
             query.put("folderId", id);
@@ -181,14 +186,20 @@ public class Folder implements Serializable {
 
             Document result = folderCollection.find(query).first();
 
-            // when folder is found use connection to get IPs with the same id
-            if (result != null) {
-                BasicDBObject query2 = new BasicDBObject();
-                query2.put
-                .put("folderId", id);
-                query2.put("folderPassword", accessPassword);
+            // Search for documents with the specified key value
+            Document query2 = new Document("folderId", id);
+            MongoCursor<Document> cursor = IPCollection.find(query2).iterator();
 
-                Document result = folderCollection.find(query).first();
+            //if folder is found use connection to get destination IPs using that shared identifier
+            if (result != null) {
+                members = new ArrayList<>();
+
+                // Loop through the matching documents and add their "secondary" values to the ArrayList
+                while (cursor.hasNext()) {
+                    Document doc = cursor.next();
+                    String secondaryValue = doc.getString("secondary");
+                    members.add(secondaryValue);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
