@@ -40,6 +40,10 @@ public class Folder implements Serializable {
         return members;
     }
 
+    public String getAccessPassword() {
+        return this.accessPassword;
+    }
+
     public String getFolderName() {
         return this.folderName;
     }
@@ -133,7 +137,11 @@ public class Folder implements Serializable {
             Envelope e = new Envelope(id, true, compareFiles(recievedFiles));
             
             //move over socket/SFTP
-            FileDistributor.sendEnvelope(e, sourceIP);
+            try {
+                SocketSender.sendEnvelope(e, sourceIP);
+            } catch (IOException e1) {
+                // TODO Auto-generated catch block
+            }
         }
     }
     

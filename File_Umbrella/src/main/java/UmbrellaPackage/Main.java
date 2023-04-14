@@ -277,6 +277,28 @@ public class Main extends Application {
         });
    }
 
+   public static void addFolder(String folderName, String id, String accessPassword) {
+       //called when creating or joining a new folder
+       Folder f = new Folder(folderName, id, accessPassword);
+       folders.add(f);
+       saveData();
+   }
+
+   public static void removeFolder(String accessPassword, String id, boolean deleteFiles) {
+        //find matching folder id
+        for(Folder f : folders) {
+            if(f.getID() != id) continue;
+            if(f.getAccessPassword() != accessPassword) continue;
+            
+            //delete directory
+            if(deleteFiles) {
+                f.deleteFolder(); 
+            }
+            folders.remove(f);
+        }
+   }
+
+
     private static void loadData() {
         //load saved folder data
         try {
@@ -287,12 +309,6 @@ public class Main extends Application {
         } catch (Exception e) {
             System.out.println(e);
         }
-    }
-
-    public static void addFolder(String folderName, String id, String accessPassword) {
-        //called when creating or joining a new folder
-        Folder f = new Folder(folderName, id, accessPassword);
-        folders.add(f);
     }
 
     private static void saveData() {
