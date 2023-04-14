@@ -1,9 +1,11 @@
 package Controllers;
 
+import java.io.FileWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import UmbrellaPackage.Main;
+import com.jcraft.jsch.*;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
@@ -40,53 +42,52 @@ public class JoinCreateFolderController {
     public TextField folderPass;
     @FXML
     public TextField folderNameTF;
+    private String FTP_SERVER = "n6dpm7grhgzdg.westeurope.azurecontainer.io";
+    private final int FTP_PORT = 22;
+    private final String FTP_USERNAME = "sftp";
+    private final String FTP_PASSWORD = "teamproject2023";
+    private final String REMOTE_DIRECTORY = "/upload/";
 
 
     // JavaFX methods to handle events
     @FXML
-    private void handleAccountAuth(ActionEvent event) {
+    private void handleAccountAuth(ActionEvent event) throws JSchException, IOException {
 
         String folderId = folderIDTF.getText();
-        String folderPassword = folderPassTF.getText();
 
+        // check if directory exists on server
+        JSch jsch = new JSch();
+        Session session = jsch.getSession(FTP_USERNAME, FTP_SERVER, FTP_PORT);
+        session.setPassword(FTP_PASSWORD);
+        System.out.println(folderId);
+        session.setConfig("StrictHostKeyChecking", "no");
+        session.connect();
+
+        ChannelSftp channelSftp = (ChannelSftp) session.openChannel("sftp");
+        channelSftp.connect();
+        SftpATTRS attrs = null;
         try {
-            // establish connection to MongoDB database
-            String connectionString = "mongodb+srv://admin:dbpass@cluster0.jmttrjk.mongodb.net/?retryWrites=true&w=majority";
-            MongoClient mongoClient = DBController.createConnection(connectionString);
-            MongoDatabase database = mongoClient.getDatabase("UserConnection");
-            MongoCollection<Document> folderCollection = database.getCollection("FolderCollection");
-
-            BasicDBObject query = new BasicDBObject();
-            query.put("folderId", folderId);
-            query.put("folderPassword", folderPassword);
-
-            Document result = folderCollection.find(query).first();
-
-
-            // open send scene when folder ID and password match
-            if (result != null) {
-                try {
-                    Thread.sleep(3000);
-                    Parent root = FXMLLoader.load(getClass().getResource("/send-view.fxml"));
-                    Scene scene = new Scene(root);
-                    Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                    stage.setScene(scene);
-                    stage.show();
-                } catch (IOException | InterruptedException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Error");
-                alert.setHeaderText("Folder ID or Password is incorrect");
-                alert.setContentText("Please try again");
-                alert.showAndWait();
-            }
+            attrs = channelSftp.stat(REMOTE_DIRECTORY + "/" + folderId);
         } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            DBController.closeConnection();
+            // Handle the exception
         }
+        if (attrs != null && attrs.isDir()) {
+            System.out.println("Directory exists");
+            // store the folder id in a file to be used in the next scene
+            FileWriter fw = new FileWriter("folderID.txt");
+            fw.write(folderId);
+            fw.close();
+            // open send-view
+            Parent root = FXMLLoader.load(getClass().getResource("/send-view.fxml"));
+            Scene scene = new Scene(root);
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(scene);
+            stage.show();
+        } else {
+            System.out.println("Directory does not exist");
+        }
+        channelSftp.disconnect();
+        session.disconnect();
     }
 
     // open create folder scene when create folder button is clicked
@@ -129,40 +130,37 @@ public class JoinCreateFolderController {
 
     // create folder in database
     @FXML
-    private void handleFolderCreation(ActionEvent event) throws IOException {
+    private void handleFolderCreation(ActionEvent event) throws IOException, JSchException, SftpException {
         String folderID = folderGen.getText();
         String folderPassword = folderPass.getText();
         String folderName = folderNameTF.getText();
-        // get user ip
-        String currentIP = null;
-        try {
-            currentIP = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-        // establish connection to MongoDB database
-        String connectionString = "mongodb+srv://admin:dbpass@cluster0.jmttrjk.mongodb.net/?retryWrites=true&w=majority";
-        MongoClient mongoClient = DBController.createConnection(connectionString);
-        MongoDatabase database = mongoClient.getDatabase("UserConnection");
-        MongoCollection<Document> collection = database.getCollection("FolderCollection");
 
-        if (!folderName.isEmpty() && !folderPassword.isEmpty() && !folderID.isEmpty()) {
-            // create document to insert into database
-            Document folderDoc = new Document("folderId", folderID)
-                    .append("folderPassword", folderPassword)
-                    .append("folderName", folderName)
-                    .append("IPAddress", currentIP);
+        // create folder in the SFPT server using the folder ID and Jsch library
+        JSch jsch = new JSch();
+        Session session = jsch.getSession(FTP_USERNAME, FTP_SERVER, FTP_PORT);
+        session.setConfig("StrictHostKeyChecking", "no");
+        session.setPassword(FTP_PASSWORD);
+        session.connect();
 
-            // insert foldername, folderid, folderpassword, and user ip into database
-            collection.insertOne(folderDoc);
+        ChannelSftp channel = (ChannelSftp) session.openChannel("sftp");
+        channel.connect();
 
-            // open send scene
-            Parent root = FXMLLoader.load(getClass().getResource("/send-view.fxml"));
-            Scene scene = new Scene(root);
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
-        }
+        // create folder in the SFPT server using the folder ID and Jsch library
+        channel.mkdir(REMOTE_DIRECTORY + folderID);
+        channel.disconnect();
+        session.disconnect();
+
+        // write folder ID to a file named folderID.txt to be used in the next scene
+        FileWriter fw = new FileWriter("folderID.txt");
+        fw.write(folderID);
+        fw.close();
+
+        // if successful, open send-view
+        Parent root = FXMLLoader.load(getClass().getResource("/send-view.fxml"));
+        Scene scene = new Scene(root);
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.setScene(scene);
+        stage.show();
     }
 
 }

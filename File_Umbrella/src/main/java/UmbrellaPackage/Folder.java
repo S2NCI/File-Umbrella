@@ -34,26 +34,14 @@ public class Folder implements Serializable {
 
     private static String folderPath = Controllers.SettingsController.defaultDirectoryPath + "\\";
     private boolean autoUpdate = Controllers.SettingsController.autoUpdate; //if true skip 
-    private boolean autoShare = Controllers.SettingsController.autoShare; //if true share changes on startup and when files requested
+    //private boolean autoShare = Controllers.SettingsController.autoShare; //if true share changes on startup and when files requested
 
     public ArrayList<String> getMembers() {
         return members;
     }
 
-    public boolean isAutoUpdate() {
-        return autoUpdate;
-    }
-
-    public void setAutoUpdate(boolean autoUpdate) {
-        this.autoUpdate = autoUpdate;
-    }
-
-    public boolean isAutoShare() {
-        return autoShare;
-    }
-
-    public void setAutoShare(boolean autoShare) {
-        this.autoShare = autoShare;
+    public String getAccessPassword() {
+        return this.accessPassword;
     }
 
     public String getFolderName() {
@@ -76,15 +64,17 @@ public class Folder implements Serializable {
 
     public void setLastSync(LocalDateTime lastSync) {
         this.lastSync = lastSync;
+    } 
+    
+    public void resetLastSync() {
+        this.lastSync = LocalDateTime.now();
     }
 
-    public Folder(String folderName, String id, String accessPassword, boolean autoUpdate, boolean autoShare) {
+    public Folder(String folderName, String id, String accessPassword) {
         //"folder" opened on program startup
         this.folderName = folderName;
         this.id = id;
         this.accessPassword = accessPassword;
-        this.autoUpdate = autoUpdate;
-        this.autoShare = autoShare;
         this.lastSync = LocalDateTime.now();
         createFolder(folderName);
         //update contents
@@ -135,7 +125,12 @@ public class Folder implements Serializable {
         
         for(String IP : members) {
             //attempt to send this envelope to each member ip through socket/SFTP
-            FileDistributor.sendEnvelope(e, IP);
+            try {
+                SocketSender.sendEnvelope(e, IP);
+            } catch (IOException e1) {
+                // TODO envelope send failure
+                e1.printStackTrace();
+            }
         }
     }
     
@@ -146,15 +141,18 @@ public class Folder implements Serializable {
             Envelope e = new Envelope(id, true, compareFiles(recievedFiles));
             
             //move over socket/SFTP
-            FileDistributor.sendEnvelope(e, sourceIP);
+            try {
+                SocketSender.sendEnvelope(e, sourceIP);
+            } catch (IOException e1) {
+                // TODO Auto-generated catch block
+            }
         }
     }
     
     public void sendFiles(ArrayList<FileData> requestedFiles, String destinationIP) {
         //method to send files to a specific network member
         
-
-        lastSync = LocalDateTime.now();
+        resetLastSync();
     }
 
     //#endregion
@@ -216,26 +214,32 @@ public class Folder implements Serializable {
         File[] directoryFiles = directory.listFiles();
         ArrayList<FileData> distributeFiles = new ArrayList<>();
         
-        LocalDateTime existingTime, updatedTime;
+        LocalDateTime updatedTime;
+
+        //check for deleted files
+        for(FileData local : savedFiles) {
+            Boolean contains = false; 
+            //check each directory file for it it matches the saved file
+            for(File file : directoryFiles) {
+                if(file.getName().matches(local.getName())) {
+                    contains = true;
+                    break;
+                }
+            }
+            if(!contains) {
+                savedFiles.remove(local);
+            }
+        }
         
         for(File file : directoryFiles) {
             if(file.isDirectory() == false) {
                 for(FileData local : savedFiles) {
                     if(file.getName().matches(local.getName())) {
-                        //index previous time and update before comparing
-                        existingTime = local.getLocalDate();
-                        try {
-                            local.updateTime(directory);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
                         updatedTime = local.getLocalDate();
-
-                        //if the updated time is after 
-                        if(updatedTime.isAfter(existingTime)) {
+                        //if the file update time is after previous sync 
+                        if(updatedTime.isAfter(lastSync)) {
                             distributeFiles.add(local);
                         }
-                        
                         //once file is found in record can move on to next
                         break;
                     }

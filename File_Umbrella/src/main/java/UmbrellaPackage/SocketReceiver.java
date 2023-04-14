@@ -2,18 +2,29 @@ package UmbrellaPackage;
 
 import java.io.*;
 import java.net.*;
+import java.io.IOException;
 
 public class SocketReceiver {
-    public static Object receiveObject(int port) throws IOException, ClassNotFoundException {
-        ServerSocket serverSocket = new ServerSocket(port);
+
+    public static Envelope receiveEnvelope() throws IOException, ClassNotFoundException {
+        
+        ServerSocket serverSocket = new ServerSocket(5002);
         Socket socket = serverSocket.accept();
         ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
-        Object object = inputStream.readObject();
+        Envelope e = (Envelope)inputStream.readObject();
         inputStream.close();
         socket.close();
         serverSocket.close();
-        return object;
+        return e;
     }
+
+    /*Thread receiverThread = new Thread(() -> {
+        try {
+
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    });*/
 }
 
 

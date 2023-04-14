@@ -15,6 +15,8 @@ import java.net.URL;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
+import javax.crypto.NullCipher;
+
 public class SettingsController implements Initializable {
 
     @FXML
@@ -30,7 +32,7 @@ public class SettingsController implements Initializable {
     //file drectory location with default in documents
     public static Boolean autoShare;
     public static Boolean autoUpdate;
-    public static String defaultDirectoryPath = System.getProperty("user.home") + "\\Documents\\File Umbrella";
+    public static String defaultDirectoryPath;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -91,6 +93,10 @@ public class SettingsController implements Initializable {
             e.printStackTrace();
         }
         defaultDirectoryPath = props.getProperty("defaultDirectory");
+        if(defaultDirectoryPath == null) {
+            //generic value
+            defaultDirectoryPath = System.getProperty("user.home") + "\\Documents\\File Umbrella";
+        }
         defaultDirectoryTextField.setText(defaultDirectoryPath);
         return defaultDirectoryPath;
     }

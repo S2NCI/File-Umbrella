@@ -133,9 +133,9 @@ public class FileDistributor implements Initializable {
         }
     }
 
-    public static void sendEnvelope(Envelope e, String IP) {
+    /*public static void sendEnvelope(Envelope e) {
         
-    }
+    }*/
     
     public void sendFile(MouseEvent event) {
         sendFilesToSFTP();

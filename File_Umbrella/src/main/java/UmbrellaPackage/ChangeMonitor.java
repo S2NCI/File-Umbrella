@@ -11,12 +11,11 @@ import java.nio.file.*;
  */
 
 public class ChangeMonitor {
-    private static String userHome = System.getProperty("user.home");
 
     public static void monitorFolder() {
         try {
         WatchService watchService = FileSystems.getDefault().newWatchService();
-        Path folder = Paths.get(userHome + "\\Documents\\File Umbrella");
+        Path folder = Paths.get(Controllers.SettingsController.defaultDirectoryPath + "\\File Umbrella");
         folder.register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY);
 
         while (true) {

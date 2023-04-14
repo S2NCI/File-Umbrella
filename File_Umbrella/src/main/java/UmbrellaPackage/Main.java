@@ -50,8 +50,8 @@ public class Main extends Application {
     private static String folderPath = Controllers.SettingsController.defaultDirectoryPath + "\\File Umbrella";
     private static final String LAST_VIEW = "lastView";
 
-    private static Envelope lastRequest, lastChanges;
-    private static String lastRequestIP, lastChangesIP;
+    private static ArrayList<Envelope> lastRequest, lastChanges;
+    private static ArrayList<String> lastRequestIP, lastChangesIP;
 
     @FXML
     private Button settingsBtn;
@@ -218,8 +218,8 @@ public class Main extends Application {
                         } else {
                                 try {
                                     displayNotification(f.getFolderName(), 1);
-                                    lastRequest = envelope;
-                                    lastRequestIP = sourceIP;
+                                    lastRequest.add(0, envelope);
+                                    lastRequestIP.add(0, sourceIP);
                                 } catch (AWTException e) {
                                     e.printStackTrace();
                                 }
@@ -231,8 +231,8 @@ public class Main extends Application {
                         } else {
                             try {
                                 displayNotification(f.getFolderName(), 2);
-                                lastChanges = envelope;
-                                lastChangesIP = sourceIP;
+                                lastChanges.add(0, envelope);
+                                lastChangesIP.add(0, sourceIP);
                             } catch (AWTException e) {
                                 e.printStackTrace();
                             }
@@ -277,6 +277,28 @@ public class Main extends Application {
         });
    }
 
+   public static void addFolder(String folderName, String id, String accessPassword) {
+       //called when creating or joining a new folder
+       Folder f = new Folder(folderName, id, accessPassword);
+       folders.add(f);
+       saveData();
+   }
+
+   public static void removeFolder(String accessPassword, String id, boolean deleteFiles) {
+        //find matching folder id
+        for(Folder f : folders) {
+            if(f.getID() != id) continue;
+            if(f.getAccessPassword() != accessPassword) continue;
+            
+            //delete directory
+            if(deleteFiles) {
+                f.deleteFolder(); 
+            }
+            folders.remove(f);
+        }
+   }
+
+
     private static void loadData() {
         //load saved folder data
         try {
@@ -287,12 +309,6 @@ public class Main extends Application {
         } catch (Exception e) {
             System.out.println(e);
         }
-    }
-
-    public static void addFolder(String folderName, String id, String accessPassword, boolean autoUpdate, boolean autoShare) {
-        //called when creating or joining a new folder
-        Folder f = new Folder(folderName, id, accessPassword, autoUpdate, autoShare);
-        folders.add(f);
     }
 
     private static void saveData() {
@@ -367,36 +383,46 @@ public class Main extends Application {
 
     
     public void manualShare() {
-        String destinationID = lastRequest.getId();
-        ArrayList<FileData> files = lastChanges.getSentFiles();
+        // method to manually share to a backlog of requests
+        for (int i = lastRequest.size() - 1; i >= 0; i--) {
+            String destinationID = lastRequest.get(i).getId();
+            ArrayList<FileData> files = lastRequest.get(i).getSentFiles();
 
-        //find matching folder id
-        for(Folder f : folders) {
-            if(f.getID() != destinationID) continue;
-        
-            //check if envelope is being sent by a member of that folder
-            for(String m : f.getMembers()) {
-                if(m.matches(lastRequestIP)) { 
-                    f.sendFiles(files, lastRequestIP); 
+            //find matching folder id
+            for(Folder f : folders) {
+                if(f.getID() != destinationID) continue;
+            
+                //check if envelope is being sent by a member of that folder
+                for(String m : f.getMembers()) {
+                    if(m.matches(lastRequestIP.get(i))) { 
+                        f.sendFiles(files, lastRequestIP.get(i)); 
+                    }
                 }
             }
+            lastChanges.remove(i);
+            lastChangesIP.remove(i);
         }
     }
 
     public void manualUpdate() {
-        String destinationID = lastChanges.getId();
-        ArrayList<FileData> files = lastChanges.getSentFiles();
+        // method to manually compare a backlog of update envelopes
+        for (int i = lastChanges.size() - 1; i >= 0; i--) {
+            String destinationID = lastChanges.get(i).getId();
+            ArrayList<FileData> files = lastChanges.get(i).getSentFiles();
 
-        //find matching folder id
-        for(Folder f : folders) {
-            if(f.getID() != destinationID) continue;
-        
-            //check if envelope is being sent by a member of that folder
-            for(String m : f.getMembers()) {
-                if(m.matches(lastChangesIP)) { 
-                    f.requestFiles(files, lastChangesIP); 
+            //find matching folder id
+            for(Folder f : folders) {
+                if(f.getID() != destinationID) continue;
+            
+                //check if envelope is being sent by a member of that folder
+                for(String m : f.getMembers()) {
+                    if(m.matches(lastChangesIP.get(i))) { 
+                        f.requestFiles(files, lastChangesIP.get(i)); 
+                    }
                 }
             }
+            lastChanges.remove(i);
+            lastChangesIP.remove(i);
         }
     }
 

@@ -8,13 +8,11 @@ import java.net.*;
  */
 
 public class SocketSender {
-    private static DataOutputStream dataOutputStream = null;
-    private static DataInputStream dataInputStream = null;
 
-    public static void sendEnvelope(Serializable object, String ipAddress) throws IOException {
-        Socket socket = new Socket(ipAddress, 5000);
+    public static void sendEnvelope(Envelope e, String ipAddress) throws IOException {
+        Socket socket = new Socket(ipAddress, 5002);
         ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
-        outputStream.writeObject(object);
+        outputStream.writeObject(e);
         outputStream.close();
         socket.close();
     }
@@ -23,6 +21,8 @@ public class SocketSender {
 
 
 /* intended socket implementation
+    private static DataOutputStream dataOutputStream = null;
+    private static DataInputStream dataInputStream = null;
 
     public static void main(String[] args) {
         try(Socket socket = new Socket("localhost",5000)) {
