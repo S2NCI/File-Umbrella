@@ -19,7 +19,6 @@ import java.util.UUID;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.nio.file.attribute.FileTime;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
@@ -35,7 +34,7 @@ public class Folder implements Serializable {
     private String folderName;
     private String id;
     private String accessPassword;
-    private FileTime lastSync;
+    private LocalDateTime lastSync;
     private ArrayList<String> members;
     private ArrayList<FileData> savedFiles = new ArrayList<>();
 
@@ -74,7 +73,15 @@ public class Folder implements Serializable {
     }
 
     public String getID() {
-        return id;
+        return this.id;
+    }
+
+    public LocalDateTime getLastSync() {
+        return this.lastSync;
+    }
+
+    public void setLastSync(LocalDateTime lastSync) {
+        this.lastSync = lastSync;
     }
 
     public Folder(String folderName, String id, String accessPassword, boolean autoUpdate, boolean autoShare) {
@@ -84,6 +91,7 @@ public class Folder implements Serializable {
         this.accessPassword = accessPassword;
         this.autoUpdate = autoUpdate;
         this.autoShare = autoShare;
+        this.lastSync = LocalDateTime.now();
         createFolder(folderName);
         //update contents
         checkIn();
@@ -125,37 +133,37 @@ public class Folder implements Serializable {
 
     //#endregion
 
-    
-    
-    public void requestFiles(ArrayList<FileData> recievedFiles, String sourceLocation) {
-        //method to request files from a specific network member
-        if(autoUpdate || true) {//request permission, true is a UI placeholder
-            //create envelope of files to be requested
-            Envelope e = new Envelope(id, true, compareFiles(recievedFiles));
-            
-            //TODO: move over socket
-        }
-    }
-    
+    //#region sync process
+
     public void sendChanges(ArrayList<FileData> changedFiles) {
         //method to send notice of file changes to network members
         Envelope e = new Envelope(id, false, changedFiles);
         
         for(String IP : members) {
-            //TODO attempt to send this envelope to each member ip through socket
+            //attempt to send this envelope to each member ip through socket/SFTP
             FileDistributor.sendEnvelope(e, IP);
         }
     }
     
-    public void sendFiles() {
-        //method to send files to a specific network member
-        
+    public void requestFiles(ArrayList<FileData> recievedFiles, String sourceIP) {
+        //method to request files from a specific network member
+        if(autoUpdate || true) {//request permission, true is a UI placeholder
+            //create envelope of files to be requested
+            Envelope e = new Envelope(id, true, compareFiles(recievedFiles));
+            
+            //move over socket/SFTP
+            FileDistributor.sendEnvelope(e, sourceIP);
+        }
     }
     
-    public void recieveFiles(ArrayList<FileData> recievedFiles, String destinationLocation) {
-        //method to compare recieved changes with local files
+    public void sendFiles(ArrayList<FileData> requestedFiles, String destinationIP) {
+        //method to send files to a specific network member
         
+
+        lastSync = LocalDateTime.now();
     }
+
+    //#endregion
 
     //#region Syncing and Comparitors
 
@@ -164,9 +172,7 @@ public class Folder implements Serializable {
         
         //check for any file changes while application was closed
         ArrayList<FileData> send = checkForChanges();
-        if(autoShare || true) {//request permission, true is a UI placeholder
-            sendChanges(send); 
-        } 
+        sendChanges(send); 
         updateMembers();
     }
 
@@ -178,7 +184,7 @@ public class Folder implements Serializable {
             MongoClient mongoClient = Controllers.DBController.createConnection(connectionString);
             MongoDatabase database = mongoClient.getDatabase("UserConnection");
             MongoCollection<Document> folderCollection = database.getCollection("FolderCollection");
-            MongoCollection<Document> IPCollection = database.getCollection("IPCollection");
+            MongoCollection<Document> addressCollection = database.getCollection("IPCollection");
 
             BasicDBObject query = new BasicDBObject();
             query.put("folderId", id);
@@ -188,7 +194,7 @@ public class Folder implements Serializable {
 
             // Search for documents with the specified key value
             Document query2 = new Document("folderId", id);
-            MongoCursor<Document> cursor = IPCollection.find(query2).iterator();
+            MongoCursor<Document> cursor = addressCollection.find(query2).iterator();
 
             //if folder is found use connection to get destination IPs using that shared identifier
             if (result != null) {
@@ -197,8 +203,8 @@ public class Folder implements Serializable {
                 // Loop through the matching documents and add their "secondary" values to the ArrayList
                 while (cursor.hasNext()) {
                     Document doc = cursor.next();
-                    String secondaryValue = doc.getString("secondary");
-                    members.add(secondaryValue);
+                    String addressValue = doc.getString("memberAddress");
+                    members.add(addressValue);
                 }
             }
         } catch (Exception e) {

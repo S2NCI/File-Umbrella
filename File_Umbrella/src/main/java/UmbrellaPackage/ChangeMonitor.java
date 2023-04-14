@@ -29,6 +29,7 @@ public class ChangeMonitor {
                 System.out.println(filename + " deleted.");
             } else if (kind == StandardWatchEventKinds.ENTRY_MODIFY) {
                 System.out.println(filename + " modified.");
+                Main.changeNotification(filename.toString());
             }
             }
             key.reset();

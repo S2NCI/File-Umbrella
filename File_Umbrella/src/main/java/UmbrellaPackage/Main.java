@@ -52,6 +52,9 @@ public class Main extends Application {
     private static String folderPath = Controllers.SettingsController.defaultDirectoryPath + "\\";
     private static final String LAST_VIEW = "lastView";
 
+    private static Envelope lastRequest, lastChanges;
+    private static String lastRequestIP, lastChangesIP;
+
     @FXML
     private Button settingsBtn;
     private Properties properties = new Properties();
@@ -176,7 +179,7 @@ public class Main extends Application {
             public void run() {
                 createDirectory();
                 loadData();
-                ChangeMonitor cm = new ChangeMonitor();
+                new ChangeMonitor();
             }
         };
 
@@ -188,16 +191,44 @@ public class Main extends Application {
     public void openEnvelope(Envelope envelope, String sourceIP) {
         String destinationID = envelope.getId();
         boolean request = envelope.isRequest();
+        ArrayList<FileData> files = envelope.getSentFiles();
        
         //find matching folder id
         for(Folder f : folders) {
             if(f.getID() != destinationID) continue;
             
-            boolean memberExists = false;
+            //check if envelope is being sent by a member of that folder
             for(String m : f.getMembers()) {
-                if(m.matches(sourceIP)) {
-                    memberExists = true;
-                    break;
+                if(m.matches(sourceIP)) { 
+                    if(request) {
+                        //this is a list of requested files from a change source
+                        if(Controllers.SettingsController.autoShare) {
+                            f.sendFiles(files, sourceIP); 
+                        } else {
+                                try {
+                                    displayNotification(f.getFolderName(), 1);
+                                    lastRequest = envelope;
+                                    lastRequestIP = sourceIP;
+                                } catch (AWTException e) {
+                                    // TODO Auto-generated catch block
+                                    e.printStackTrace();
+                                }
+                        }
+                    } else {
+                        //this is a list of changes being made available to others
+                        if(Controllers.SettingsController.autoUpdate) {
+                            f.requestFiles(files, sourceIP);
+                        } else {
+                            try {
+                                displayNotification(f.getFolderName(), 2);
+                                lastChanges = envelope;
+                                lastChangesIP = sourceIP;
+                            } catch (AWTException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -325,9 +356,56 @@ public class Main extends Application {
         }
     }
 
-    protected void displayNotification(String folderName) throws AWTException {
-        //send notification about folder update
-        trayIcon.displayMessage("Folder Ready to Sync", folderName + " has been updated by another device, click to sync.", TrayIcon.MessageType.NONE);
+    
+    public void manualShare() {
+        String destinationID = lastRequest.getId();
+        ArrayList<FileData> files = lastChanges.getSentFiles();
+
+        //find matching folder id
+        for(Folder f : folders) {
+            if(f.getID() != destinationID) continue;
+        
+            //check if envelope is being sent by a member of that folder
+            for(String m : f.getMembers()) {
+                if(m.matches(lastRequestIP)) { 
+                    f.sendFiles(files, lastRequestIP); 
+                }
+            }
+        }
+    }
+
+    public void manualUpdate() {
+        String destinationID = lastChanges.getId();
+        ArrayList<FileData> files = lastChanges.getSentFiles();
+
+        //find matching folder id
+        for(Folder f : folders) {
+            if(f.getID() != destinationID) continue;
+        
+            //check if envelope is being sent by a member of that folder
+            for(String m : f.getMembers()) {
+                if(m.matches(lastChangesIP)) { 
+                    f.requestFiles(files, lastChangesIP); 
+                }
+            }
+        }
+    }
+
+    protected void displayNotification(String name, int type) throws AWTException {
+        switch(type) {
+            case 1:
+            //requested files
+            trayIcon.displayMessage("Someone wants to Sync", name + " has updates a member wants to download, open to send", TrayIcon.MessageType.NONE);
+            break;
+            case 2:
+            //available changes
+            trayIcon.displayMessage("Folder Ready to Sync", name + " has been updated by another device, open to sync.", TrayIcon.MessageType.NONE);
+            break;
+        }
+    }
+
+    public static void changeNotification(String folderName) {
+        trayIcon.displayMessage("New Changes in Folder", folderName + " has been changed, open to share changes.", TrayIcon.MessageType.NONE);
     }
     
     /*private static void placeShortcut() { 
