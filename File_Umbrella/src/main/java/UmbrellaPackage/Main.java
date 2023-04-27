@@ -45,7 +45,7 @@ import java.util.Properties;
 public class Main extends Application {
 
     private static TrayIcon trayIcon;
-    private static ArrayList<Folder> folders;
+    public static ArrayList<Folder> folders;
     //private static String folderPath = System.getProperty("user.home") + "\\Documents\\File Umbrella";
     private static String folderPath = Controllers.SettingsController.defaultDirectoryPath + "\\File Umbrella";
     private static final String LAST_VIEW = "lastView";
@@ -199,7 +199,7 @@ public class Main extends Application {
         launch();
     }
 
-    public void openEnvelope(Envelope envelope, String sourceIP) {
+    public static void openEnvelope(Envelope envelope, String sourceIP) {
         String destinationID = envelope.getId();
         boolean request = envelope.isRequest();
         ArrayList<FileData> files = envelope.getSentFiles();
@@ -323,7 +323,7 @@ public class Main extends Application {
         }
     }
    
-    private static void createDirectory() {
+    public static void createDirectory() {
         //method to create a directory folder to manage files from
         File directory = new File(folderPath);
     
